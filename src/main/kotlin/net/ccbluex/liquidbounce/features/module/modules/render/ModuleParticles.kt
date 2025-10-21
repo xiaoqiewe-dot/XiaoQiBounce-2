@@ -2,6 +2,9 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import com.mojang.blaze3d.systems.RenderSystem
 import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.ConfigSystem
+import net.minecraft.client.texture.NativeImage
+import net.minecraft.client.texture.NativeImageBackedTexture
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.events.WorldRenderEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -57,6 +60,30 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
         canBeNone = false
     )
 
+    // Allow loading custom particle images from a folder
+    private val useCustomImages by boolean("UseCustomImages", false)
+    private val customTextures = mutableListOf<Identifier>()
+    private val customParticlesDir by lazy { java.io.File(ConfigSystem.rootFolder, "particles").apply { if (!exists()) mkdirs() } }
+
+    init {
+        refreshCustomTextures()
+    }
+
+    private fun refreshCustomTextures() {
+        customTextures.clear()
+        val files = customParticlesDir.listFiles { f -> f.isFile && f.name.endsWith(".png", ignoreCase = true) } ?: return
+        for (file in files) {
+            runCatching {
+                file.inputStream().use { input ->
+                    val image = NativeImage.read(input)
+                    val id = Identifier.of("liquidbounce", "custom-particle-" + file.nameWithoutExtension)
+                    mc.textureManager.registerTexture(id, NativeImageBackedTexture(image))
+                    customTextures += id
+                }
+            }
+        }
+    }
+
     private val particles = mutableListOf<Particle>()
     private val chronometer = Chronometer()
 
@@ -71,8 +98,14 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
         val directionVector = (RotationManager.currentRotation ?: player.rotation).directionVector
         val pos = player.eyePos.add(directionVector * player.distanceTo(event.entity).toDouble())
 
+        val availableTextures = buildList<Identifier> {
+            addAll(particleImages.map { it.texture })
+            if (useCustomImages) addAll(customTextures)
+        }
+
         repeat(count.random()) { _ ->
-            particles.add(Particle(pos, particleImages.random()))
+            val tex = availableTextures.random()
+            particles.add(Particle(pos, tex))
         }
     }
 
@@ -92,7 +125,7 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
                     mc.cameraEntity?.let { camera ->
                         if (canSeePointFrom(camera.eyePos, particle.pos)) {
                             matrixStack.push()
-                            RenderSystem.setShaderTexture(0, particle.particleImage.texture)
+                            RenderSystem.setShaderTexture(0, particle.texture)
                             render(particle, event.partialTicks)
                             matrixStack.pop()
                         }
@@ -142,9 +175,9 @@ private class Particle private constructor(
     var alpha: Float = 1.0f, /* 0 <= alpha <= 1 */
     val spawnTime: Long = System.currentTimeMillis(),
     val rotation: Float,
-    val particleImage: ParticleImage
+    val texture: Identifier
 ) {
-    constructor(pos: Vec3d, particleImage: ParticleImage) : this(
+    constructor(pos: Vec3d, texture: Identifier) : this(
         pos = pos,
         prevPos = pos,
         velocity = Vec3d(
@@ -153,7 +186,7 @@ private class Particle private constructor(
             (-0.01..0.01).random()
         ),
         rotation = (0f..360f).random(),
-        particleImage = particleImage
+        texture = texture
     )
 }
 

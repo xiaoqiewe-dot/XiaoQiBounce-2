@@ -144,6 +144,22 @@ object ModuleBetterChat : ClientModule("BetterChat", Category.RENDER, aliases = 
         // Per-player placeholders (unknown target -> 0)
         out = out.replace("%kill_player%", "0")
         out = out.replace("%bed_break_player%", "0")
+
+        // Custom variables:
+        // %player_rplayer% -> random player on this server (excluding self)
+        // %player_drplayer% -> random player not on your team (and not yourself)
+        val worldPlayers = world.players
+        val self = player
+        val others = worldPlayers.filter { it.id != self.id }
+        val randomPlayer = others.randomOrNull()?.gameProfile?.name ?: self.gameProfile.name
+
+        // Exclude teammates using scoreboard teams (player.isTeammate)
+        val nonTeammates = others.filter { !self.isTeammate(it) }
+        val randomDifferentTeam = nonTeammates.randomOrNull()?.gameProfile?.name ?: randomPlayer
+
+        out = out.replace("%player_rplayer%", randomPlayer)
+        out = out.replace("%player_drplayer%", randomDifferentTeam)
+
         return out
     }
 
