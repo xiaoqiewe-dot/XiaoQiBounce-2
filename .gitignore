@@ -1,0 +1,13 @@
+.idea/*
+!.idea/copyright/
+*.iml
+*.ipr
+*.iws
+/bin/
+/.settings/
+/.gradle/
+/build/
+/run/
+/mcef/
+/logs/
+/.kotlin/
