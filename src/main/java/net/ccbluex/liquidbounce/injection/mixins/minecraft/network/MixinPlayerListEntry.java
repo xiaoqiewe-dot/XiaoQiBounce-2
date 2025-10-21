@@ -55,15 +55,9 @@ public abstract class MixinPlayerListEntry {
         }
 
         if (ModuleSkinChanger.INSTANCE.getRunning()) {
-            var player = MinecraftClient.getInstance().player;
-            if (player != null) {
-                var playerListEntry = player.getPlayerListEntry();
-                if (playerListEntry != null && playerListEntry.equals((PlayerListEntry) (Object) this)) {
-                    var customSkinTextures = ModuleSkinChanger.INSTANCE.getSkinTextures();
-                    if (customSkinTextures != null) {
-                        original = customSkinTextures.get();
-                    }
-                }
+            var overrideSupplier = ModuleSkinChanger.INSTANCE.getSkinTexturesFor(this.profile.getId());
+            if (overrideSupplier != null) {
+                original = overrideSupplier.get();
             }
         }
 
