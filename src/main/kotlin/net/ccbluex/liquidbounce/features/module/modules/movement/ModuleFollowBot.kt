@@ -22,10 +22,19 @@ import net.ccbluex.liquidbounce.config.types.nesting.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.render.engine.type.Color4b
+import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.client.clickBlockWithSlot
+import net.ccbluex.liquidbounce.utils.client.world
+import net.ccbluex.liquidbounce.utils.block.SwingMode
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.navigation.NavigationBaseConfigurable
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.BlockItem
 import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Direction
 
 /**
  * A follow bot that automatically follows a specified player.
@@ -64,6 +73,13 @@ object ModuleFollowBot : ClientModule("FollowBot", Category.MOVEMENT) {
      */
     internal object FollowBot : NavigationBaseConfigurable<FollowContext>(ModuleFollowBot, "FollowBot", false) {
 
+        private val avoidVoid by boolean("AvoidVoid", true)
+        private val voidCheckDepth by int("VoidCheckDepth", 12, 3..32)
+        private val autoBridge by boolean("AutoBridge", true)
+        private val bridgeDelayMs by int("BridgeDelay", 120, 0..1000, "ms")
+
+        private var lastBridgeMs = 0L
+
         /**
          * Calculates the desired position to move towards
          *
@@ -73,15 +89,26 @@ object ModuleFollowBot : ClientModule("FollowBot", Category.MOVEMENT) {
             if (!FollowConfig.enabled) return null
 
             val target = context.targetPlayer ?: return null
-            val targetPos = target.pos
             val playerPos = context.playerPosition
 
-            // Calculate the desired position to move to (behind the target)
-            val distance = context.distance
-            val direction = playerPos.subtract(targetPos).normalize()
-            val desiredPos = targetPos.add(direction.multiply(distance.toDouble()))
+            val radius = context.distance.toDouble().coerceAtLeast(0.5)
 
-            return desiredPos
+            // Probe around the target in 45° steps and pick the closest safe point
+            val best = (-180..180 step 45)
+                .mapNotNull { yaw ->
+                    val rot = Rotation(yaw = yaw.toFloat(), pitch = 0.0f)
+                    val pos = target.pos.add(rot.directionVector.multiply(radius))
+
+                    // Skip unsafe points and unsafe straight-line paths
+                    if (!isPositionSafe(pos) || !hasSafeLinePath(playerPos, pos)) return@mapNotNull null
+
+                    // Debug candidates
+                    ModuleDebug.debugGeometry(this, "FollowCandidate $yaw", ModuleDebug.DebuggedPoint(pos, Color4b.CYAN))
+                    pos
+                }
+                .minByOrNull { it.squaredDistanceTo(playerPos) }
+
+            return best ?: target.pos
         }
 
         /**
@@ -92,24 +119,102 @@ object ModuleFollowBot : ClientModule("FollowBot", Category.MOVEMENT) {
         override fun handleMovementAssist(event: MovementInputEvent, context: FollowContext) {
             super.handleMovementAssist(event, context)
 
-            // --- JUMP LOGIC ---
-            // Only jump if the target is far away or if we are in a situation where jumping helps
-            // This is a simplified version based on the idea of "running away" in KillAuraFightBot
-            // We'll add a condition to jump if we are too far from the target
+            val goal = calculateGoalPosition(context) ?: return
+
+            // Small jump assist if we lag behind
             val target = context.targetPlayer
-            val distance = context.distance
-
             if (target != null) {
-                val playerPos = context.playerPosition
-                val targetPos = target.pos
-                val currentDistance = playerPos.distanceTo(targetPos)
-
-                if (currentDistance > distance + 1.0) {
-                    if (player.moving) {
-                    }
+                val currentDistance = context.playerPosition.distanceTo(target.pos)
+                if (currentDistance > context.distance + 1.0 && player.moving) {
+                    event.jump = true
                 }
             }
-            // --- END JUMP LOGIC ---
+
+            // Try to bridge safely when path goes over void
+            attemptAutoBridgeTowards(goal)
+        }
+
+        // --- Helpers: safety & bridging ---
+        private fun canStandOn(pos: BlockPos): Boolean {
+            val state = world.getBlockState(pos)
+            return state.isSideSolid(world, pos, Direction.UP)
+        }
+
+        private fun isOverVoid(position: Vec3d): Boolean {
+            if (!avoidVoid) return false
+            var checkPos = BlockPos(position.x.toInt(), (position.y - 1.0).toInt(), position.z.toInt())
+            repeat(voidCheckDepth) {
+                if (canStandOn(checkPos)) return false
+                checkPos = checkPos.down()
+            }
+            return true
+        }
+
+        private fun isPositionSafe(position: Vec3d): Boolean {
+            if (player.doesCollideAt(position)) return false
+            if (avoidVoid && isOverVoid(position)) return false
+            return true
+        }
+
+        private fun hasSafeLinePath(start: Vec3d, end: Vec3d): Boolean {
+            if (!avoidVoid) return true
+            val distance = start.distanceTo(end)
+            val steps = kotlin.math.max(1, (distance / 0.75).toInt())
+            val delta = end.subtract(start)
+            for (i in 1..steps) {
+                val t = i.toDouble() / steps.toDouble()
+                val pos = start.add(delta.multiply(t))
+                if (isOverVoid(pos)) return false
+            }
+            return true
+        }
+
+        private fun cardinalDirectionTowards(goal: Vec3d): Direction {
+            val dx = goal.x - player.x
+            val dz = goal.z - player.z
+            return if (kotlin.math.abs(dx) > kotlin.math.abs(dz)) {
+                if (dx > 0) Direction.EAST else Direction.WEST
+            } else {
+                if (dz > 0) Direction.SOUTH else Direction.NORTH
+            }
+        }
+
+        private fun attemptAutoBridgeTowards(goal: Vec3d) {
+            if (!autoBridge) return
+            val now = System.currentTimeMillis()
+            if (now - lastBridgeMs < bridgeDelayMs) return
+
+            // Only consider bridging if upcoming step is over void
+            if (!isOverVoid(goal)) return
+
+            val dir = cardinalDirectionTowards(goal)
+            val supportPos = player.blockPos.down()
+            val placePos = supportPos.offset(dir)
+
+            // Already has ground there
+            if (canStandOn(placePos)) return
+
+            // Need a support block to click on
+            val supportState = world.getBlockState(supportPos)
+            if (supportState.isAir) return
+
+            // Find a block in hotbar
+            val slot = (0..8).firstOrNull { player.inventory.getStack(it).item is BlockItem } ?: return
+
+            val center = supportPos.toCenterPos()
+            val hitVec = center.add(dir.offsetX * 0.5, dir.offsetY * 0.5, dir.offsetZ * 0.5)
+            val hitResult = net.minecraft.util.hit.BlockHitResult(hitVec, dir, supportPos, false)
+
+            clickBlockWithSlot(
+                player,
+                hitResult,
+                slot,
+                SwingMode.DO_NOT_HIDE,
+                net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SwitchMode.SILENT,
+                false
+            )
+
+            lastBridgeMs = now
         }
 
         /**
@@ -152,84 +257,7 @@ object ModuleFollowBot : ClientModule("FollowBot", Category.MOVEMENT) {
      * This is where we can directly influence how the player moves
      * to avoid detection by anti-cheat systems.
      */
-    @Suppress("unused")
-    private val movementHandler = movementHandler@{ event: MovementInputEvent ->
-        if (!enabled || !FollowConfig.enabled) return@movementHandler
-
-
-        // --- FOLLOW LOGIC ---
-        // We'll implement a simple, very low-profile way to follow.
-        // The key is to avoid sending any suspicious movement packets
-        // or making sudden changes in velocity that could trigger Detection.
-
-        // Get the current navigation context (from FollowBot)
-        // Get the current navigation context (from FollowBot)
-        val context = FollowBot.run { createNavigationContext() }  // 使用run作用域函数访问
-
-        val target = context.targetPlayer
-        val distance = context.distance
-
-        if (target == null) {
-            // No target, do nothing
-            return@movementHandler
-        }
-
-        val playerPos = context.playerPosition
-        val targetPos = target.pos
-
-        // Calculate the desired position to move to (behind the target)
-        val direction = playerPos.subtract(targetPos).normalize()
-        val desiredPos = targetPos.add(direction.multiply(distance.toDouble()))
-
-        // Calculate the difference between current and desired position
-        val diff = desiredPos.subtract(playerPos)
-        val distanceToDesired = diff.length()
-
-        // If we're close enough to the desired position, don't change movement
-        // This prevents micro-movements that might be flagged
-        if (distanceToDesired < 0.1) {
-            // Optionally, we could set event.forward = 0.0f, event.sideways = 0.0f
-            // But this might interfere with other movement handling.
-            // Instead, we'll just do nothing.
-            return@movementHandler
-        }
-
-        // --- SAFE MOVEMENT INPUT ---
-        // To avoid triggering GrimAC or similar, we'll use a very conservative approach:
-        // 1. Calculate a direction vector towards the target.
-        // 2. Set movement input in a way that's very close to natural walking.
-        // 3. Avoid setting large, sudden changes in input.
-
-        // Normalize the movement vector
-        val moveVec = diff.normalize()
-
-        // --- MINIMAL INPUT ADJUSTMENT ---
-        // Instead of directly setting event.forward, event.sideways,
-        // we'll adjust the player's velocity in a very small, consistent way.
-        // This is much harder to detect than sending packets or modifying input directly.
-        // We'll do it once per tick, with a very small change.
-        // This mimics a natural, slow, consistent movement towards the target.
-
-        // --- DIRECT VELOCITY MODIFICATION ---
-        // This is the safest way to move without triggering detection.
-        // It's a very small, consistent change to the player's velocity.
-        // It avoids sending packets or modifying the input event directly.
-
-        // Calculate a small movement vector towards the target
-        val moveSpeed = 0.01 // Very small speed to avoid detection
-        val moveVector = moveVec.multiply(moveSpeed)
-
-        // Apply the movement vector to the player's velocity
-        // This is a very subtle change that should not trigger Simulation
-        player.setVelocity(
-            player.velocity.x + moveVector.x,
-            player.velocity.y, // Keep Y velocity unchanged
-            player.velocity.z + moveVector.z
-        )
-
-        // --- END SAFE MOVEMENT INPUT ---
-        // --- END FOLLOW LOGIC ---
-    }
+    // Legacy movement handler removed in favor of NavigationBaseConfigurable-driven input and safe auto-bridge.
 
     override fun enable() {
         // Ensure the module is enabled if the config is enabled

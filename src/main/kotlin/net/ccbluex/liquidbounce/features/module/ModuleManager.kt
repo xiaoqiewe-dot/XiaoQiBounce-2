@@ -394,10 +394,11 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleItemChams,
             ModuleCrystalView,
             ModuleSkinChanger,
+            ModuleItemImageReplace,
 
-            // World
-            ModuleAutoBuild,
-            ModuleAutoDisable,
+             // World
+             ModuleAutoBuild,
+
             ModuleAutoFarm,
             ModuleAutoTool,
             ModuleCrystalAura,
