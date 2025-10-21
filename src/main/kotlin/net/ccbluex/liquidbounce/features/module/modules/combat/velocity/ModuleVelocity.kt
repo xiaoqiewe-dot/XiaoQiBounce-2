@@ -65,6 +65,8 @@ object ModuleVelocity : ClientModule("Velocity", Category.COMBAT, aliases = arra
             VelocityGrim,
             VelocityGrimCombat,
             VelocityDelayedKnockback,
+            VelocityGrimDelay,
+            VelocityGrimReverse,
             VelocityIntave
         )
     }.apply(::tagBy)
