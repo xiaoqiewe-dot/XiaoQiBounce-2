@@ -30,6 +30,7 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.Horiz
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.INTBotMode
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.IntaveHeavyAntiBotMode
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.MatrixAntiBotMode
+import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.modes.AntiNPCMode
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
 
@@ -42,6 +43,7 @@ object ModuleAntiBot : ClientModule("AntiBot", Category.MISC) {
         IntaveHeavyAntiBotMode,
         INTBotMode,
         HorizonAntiBotMode,
+        AntiNPCMode,
     ))
 
     private val literalNPC by boolean("LiteralNPC", false)
