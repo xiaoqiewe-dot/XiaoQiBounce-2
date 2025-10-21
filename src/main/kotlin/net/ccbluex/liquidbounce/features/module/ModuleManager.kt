@@ -251,6 +251,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleSkinDerp,
             ModuleHandDerp,
             ModuleTwerk,
+            ModuleNotebot,
             ModuleVomit,
 
             // Misc
@@ -289,6 +290,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleElytraRecast,
             ModuleElytraFly,
             ModuleFly,
+            ModuleCobwebFly,
             ModuleFreeze,
             ModuleHighJump,
             ModuleInventoryMove,
@@ -327,6 +329,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleAutoShop,
             ModuleAutoWalk,
             ModuleBlink,
+            ModuleBlinkGrim,
             ModuleChestStealer,
             ModuleEagle,
             ModuleFastExp,
@@ -415,6 +418,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleSurround,
             ModulePacketMine,
             ModuleHoleFiller,
+            ModuleAirPlace,
 
             // Client
             ModuleAutoConfig,

@@ -123,13 +123,33 @@ object ModuleBetterChat : ClientModule("BetterChat", Category.RENDER, aliases = 
             return content
         }
 
+        val withVars = applyVariables(content)
+
         val result = if (forceUnicodeChat) {
-            applyUnicodeTransformation(content)
+            applyUnicodeTransformation(withVars)
         } else {
-            content
+            withVars
         }
 
         return AppendSuffix.modifyMessage(AppendPrefix.modifyMessage(result))
+    }
+
+    private fun applyVariables(text: String): String {
+        var out = text
+        // Player name
+        out = out.replace("%s%", mc.session?.username ?: player.name.string)
+        // Global counters (not tracked here, default to 0)
+        out = out.replace("%kill_at%", BetterChatStats.totalKills.toString())
+        out = out.replace("%bed_break_at%", BetterChatStats.totalBeds.toString())
+        // Per-player placeholders (unknown target -> 0)
+        out = out.replace("%kill_player%", "0")
+        out = out.replace("%bed_break_player%", "0")
+        return out
+    }
+
+    private object BetterChatStats {
+        @Volatile var totalKills: Int = 0
+        @Volatile var totalBeds: Int = 0
     }
 
     private fun applyUnicodeTransformation(content: String): String {
