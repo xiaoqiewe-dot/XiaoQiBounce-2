@@ -56,7 +56,7 @@ object ModuleItemImageReplace : ClientModule("ItemImageReplace", Category.RENDER
     }
 
     // List of mappings written as: "minecraft:diamond_sword=my_sword.png"
-    private val mappings by textList("Mappings", mutableListOf())
+    private val mappings = textList("Mappings", mutableListOf<String>())
 
     // Cache: Item -> texture id
     private val itemTextureMap: MutableMap<Item, Identifier> = ConcurrentHashMap()
@@ -85,18 +85,17 @@ object ModuleItemImageReplace : ClientModule("ItemImageReplace", Category.RENDER
     init {
         // Rebuild mappings when config changes
         withScope {
-            mappings.asStateFlow().debounce { 2.seconds }.collectLatest {
+            mappings.asStateFlow().debounce { 2.seconds }.collectLatest { entries ->
                 // Wait for client init
                 while (mc.player == null) delay(1.seconds)
-                rebuildMappings()
+                rebuildMappings(entries.toList())
             }
         }
     }
 
-    private fun rebuildMappings() {
+    private fun rebuildMappings(entries: List<String> = mappings.get().toList()) {
         itemTextureMap.clear()
-        val list = mappings.toList()
-        list.forEach { line ->
+        entries.forEach { line ->
             val parts = line.split('=')
             if (parts.size != 2) return@forEach
             val itemIdStr = parts[0].trim()
@@ -119,7 +118,11 @@ object ModuleItemImageReplace : ClientModule("ItemImageReplace", Category.RENDER
         fileIdCache[file]?.let { return it }
         return runCatching {
             val image = file.inputStream().use { NativeImage.read(it) }
-            val id = Identifier.of("liquidbounce", "custom-item-" + file.nameWithoutExtension.lowercase().replace("[^a-z0-9_\-]".toRegex(), "_") + "-" + System.currentTimeMillis().toString(36))
+            val sanitizedName = file.nameWithoutExtension
+                .lowercase()
+                .replace(Regex("[^a-z0-9_-]"), "_")
+            val uniqueSuffix = System.currentTimeMillis().toString(36)
+            val id = Identifier.of("liquidbounce", "custom-item-$sanitizedName-$uniqueSuffix")
             mc.textureManager.registerTexture(id, NativeImageBackedTexture(image))
             fileIdCache[file] = id
             id

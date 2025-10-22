@@ -48,6 +48,10 @@ base {
     group = maven_group
 }
 
+gitProperties {
+    dotGitDirectory = file("${rootProject.rootDir}/.git")
+}
+
 /** Includes non-mod dependency recursively in the JAR file */
 val includeDependency: Configuration by configurations.creating
 
