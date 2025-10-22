@@ -31,6 +31,10 @@ plugins {
     id("org.jetbrains.dokka") version "1.9.10"
 }
 
+gitProperties {
+    failOnNoGitRepository = false
+}
+
 val archives_base_name: String by project
 val mod_version: String by project
 val maven_group: String by project

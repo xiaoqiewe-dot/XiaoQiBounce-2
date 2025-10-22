@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.block.collideBlockIntersects
+import net.ccbluex.liquidbounce.utils.entity.box
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.minecraft.block.CobwebBlock
 import kotlin.math.cos
@@ -80,6 +81,6 @@ object ModuleCobwebFly : ClientModule("CobwebFly", Category.MOVEMENT) {
         player.setVelocity(newVelX, newVelY, newVelZ)
 
         // Reduce server-side slow effects while in webs by marking on-ground false
-        if (inWeb) player.onGround = false
+        if (inWeb) player.setOnGround(false)
     }
 }
