@@ -2,14 +2,11 @@ name: Build
 
 on:
   push:
-    branches: [ nextgen ]
   pull_request:
-    branches: [ nextgen ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/nextgen'
     steps:
       - name: Checkout repository and submodules
         uses: actions/checkout@v4
@@ -34,6 +31,7 @@ jobs:
           arguments: genSources build -x test -x detekt
 
       - name: Upload artifact
+        if: success() && github.ref == 'refs/heads/nextgen'
         env:
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
@@ -72,7 +70,6 @@ jobs:
 
   verify-pr:
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/nextgen'
     steps:
       - name: Checkout repository and submodules
         uses: actions/checkout@v3
