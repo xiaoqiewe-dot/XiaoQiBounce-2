@@ -28,8 +28,10 @@ import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
 import net.ccbluex.liquidbounce.utils.client.clickBlockWithSlot
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.block.SwingMode
+import net.ccbluex.liquidbounce.utils.entity.doesCollideAt
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.navigation.NavigationBaseConfigurable
+import net.minecraft.block.SideShapeType
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.util.math.Vec3d
@@ -137,7 +139,7 @@ object ModuleFollowBot : ClientModule("FollowBot", Category.MOVEMENT) {
         // --- Helpers: safety & bridging ---
         private fun canStandOn(pos: BlockPos): Boolean {
             val state = world.getBlockState(pos)
-            return state.isSideSolid(world, pos, Direction.UP)
+            return state.isSideSolid(world, pos, Direction.UP, SideShapeType.CENTER)
         }
 
         private fun isOverVoid(position: Vec3d): Boolean {

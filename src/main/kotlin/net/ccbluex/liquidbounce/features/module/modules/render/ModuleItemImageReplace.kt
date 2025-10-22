@@ -56,7 +56,8 @@ object ModuleItemImageReplace : ClientModule("ItemImageReplace", Category.RENDER
     }
 
     // List of mappings written as: "minecraft:diamond_sword=my_sword.png"
-    private val mappings by textList("Mappings", mutableListOf())
+    private val mappingsValue = textList("Mappings", mutableListOf())
+    private val mappings by mappingsValue
 
     // Cache: Item -> texture id
     private val itemTextureMap: MutableMap<Item, Identifier> = ConcurrentHashMap()
@@ -85,7 +86,7 @@ object ModuleItemImageReplace : ClientModule("ItemImageReplace", Category.RENDER
     init {
         // Rebuild mappings when config changes
         withScope {
-            mappings.asStateFlow().debounce { 2.seconds }.collectLatest {
+            mappingsValue.asStateFlow().debounce { 2.seconds }.collectLatest {
                 // Wait for client init
                 while (mc.player == null) delay(1.seconds)
                 rebuildMappings()
@@ -119,7 +120,7 @@ object ModuleItemImageReplace : ClientModule("ItemImageReplace", Category.RENDER
         fileIdCache[file]?.let { return it }
         return runCatching {
             val image = file.inputStream().use { NativeImage.read(it) }
-            val id = Identifier.of("liquidbounce", "custom-item-" + file.nameWithoutExtension.lowercase().replace("[^a-z0-9_\-]".toRegex(), "_") + "-" + System.currentTimeMillis().toString(36))
+            val id = Identifier.of("liquidbounce", "custom-item-" + file.nameWithoutExtension.lowercase().replace("[^a-z0-9_\\-]".toRegex(), "_") + "-" + System.currentTimeMillis().toString(36))
             mc.textureManager.registerTexture(id, NativeImageBackedTexture(image))
             fileIdCache[file] = id
             id
