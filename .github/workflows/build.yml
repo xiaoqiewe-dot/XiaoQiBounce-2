@@ -28,7 +28,7 @@ jobs:
           CI: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          arguments: genSources build -x test -x detekt
+          arguments: genSources shadowJar -x test -x detekt
 
       - name: Upload artifact
         if: success() && github.ref == 'refs/heads/nextgen'
@@ -90,7 +90,7 @@ jobs:
         env:
           CI: true
         with:
-          arguments: genSources build
+          arguments: genSources shadowJar
 
       # Make sure we always run this upload task,
       # because the previous step may fail if there are findings.
