@@ -22,19 +22,22 @@ import net.ccbluex.liquidbounce.config.types.nesting.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.render.engine.type.Color4b
+import net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SwitchMode
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
+import net.ccbluex.liquidbounce.render.engine.type.Color4b
 import net.ccbluex.liquidbounce.utils.aiming.data.Rotation
+import net.ccbluex.liquidbounce.utils.block.SwingMode
+import net.ccbluex.liquidbounce.utils.block.canStandOn
 import net.ccbluex.liquidbounce.utils.client.clickBlockWithSlot
 import net.ccbluex.liquidbounce.utils.client.world
-import net.ccbluex.liquidbounce.utils.block.SwingMode
+import net.ccbluex.liquidbounce.utils.entity.doesCollideAt
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.navigation.NavigationBaseConfigurable
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
-import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
+import net.minecraft.util.math.Vec3d
 
 /**
  * A follow bot that automatically follows a specified player.
@@ -135,10 +138,7 @@ object ModuleFollowBot : ClientModule("FollowBot", Category.MOVEMENT) {
         }
 
         // --- Helpers: safety & bridging ---
-        private fun canStandOn(pos: BlockPos): Boolean {
-            val state = world.getBlockState(pos)
-            return state.isSideSolid(world, pos, Direction.UP)
-        }
+        private fun canStandOn(pos: BlockPos): Boolean = pos.canStandOn()
 
         private fun isOverVoid(position: Vec3d): Boolean {
             if (!avoidVoid) return false
@@ -210,7 +210,7 @@ object ModuleFollowBot : ClientModule("FollowBot", Category.MOVEMENT) {
                 hitResult,
                 slot,
                 SwingMode.DO_NOT_HIDE,
-                net.ccbluex.liquidbounce.features.module.modules.combat.crystalaura.SwitchMode.SILENT,
+                SwitchMode.SILENT,
                 false
             )
 
