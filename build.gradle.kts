@@ -215,7 +215,7 @@ dependencies {
 }
 
 tasks.processResources {
-    dependsOn("bundleTheme")
+//    dependsOn("bundleTheme")
 
     val contributors = JsonOutput.prettyPrint(
         JsonOutput.toJson(getContributors("CCBlueX", "LiquidBounce"))
