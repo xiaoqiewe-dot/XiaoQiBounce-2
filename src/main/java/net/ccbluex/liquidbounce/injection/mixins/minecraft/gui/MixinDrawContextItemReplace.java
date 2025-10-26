@@ -67,7 +67,7 @@ public abstract class MixinDrawContextItemReplace {
         RenderSystem.setShaderTexture(0, texture);
 
         RenderShortcutsKt.renderEnvironmentForGUI(this.matrices, (GUIRenderEnvironment env) -> {
-            RenderShortcutsKt.drawCustomMesh(env, VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR, ShaderProgramKeys.POSITION_TEX_COLOR, (buffer, Matrix4f matrix) -> {
+            RenderShortcutsKt.drawCustomMesh(env, VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR, ShaderProgramKeys.POSITION_TEX_COLOR, (buffer, matrix) -> {
                 float x1 = (float) x;
                 float y1 = (float) y;
                 float x2 = x1 + 16.0f;

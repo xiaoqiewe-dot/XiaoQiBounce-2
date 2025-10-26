@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Read(//d/Documents/LiquidBounce/src/main/kotlin/net/ccbluex/liquidbounce/integration/theme/**)",
+      "Read(//d/Documents/LiquidBounce0311/src/main/kotlin/net/ccbluex/liquidbounce/integration/theme/**)",
+      "Bash(gradlew.bat build:*)",
+      "Bash(./gradlew.bat build:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git reset:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

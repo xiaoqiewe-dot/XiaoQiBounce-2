@@ -320,20 +320,39 @@ class Theme(val name: String) : Closeable {
 
         fun defaults() = runCatching {
             val folder = ThemeManager.themesFolder.resolve("default")
-            val stream = resource("/resources/liquidbounce/default_theme.zip")
 
-            if (folder.exists()) {
-                folder.deleteRecursively()
+            // Try to load from resources if available
+            runCatching {
+                val stream = resource("/resources/liquidbounce/default_theme.zip")
+                if (folder.exists()) {
+                    folder.deleteRecursively()
+                }
+                extractZip(stream, folder)
+                folder.deleteOnExit()
+            }.onFailure {
+                logger.warn("Default theme resource not found, creating minimal theme")
+                // Create minimal theme structure if resource is missing
+                if (!folder.exists()) {
+                    folder.mkdirs()
+                    // Create minimal metadata.json
+                    File(folder, "metadata.json").writeText("""
+                        {
+                            "name": "default",
+                            "author": "LiquidBounce",
+                            "version": "1.0.0",
+                            "supports": [],
+                            "overlays": [],
+                            "components": []
+                        }
+                    """.trimIndent())
+                }
             }
-
-            extractZip(stream, folder)
-            folder.deleteOnExit()
 
             Theme("default")
         }.onFailure {
-            logger.error("Unable to extract default theme", it)
+            logger.error("Unable to create default theme", it)
         }.onSuccess {
-            logger.info("Successfully extracted default theme")
+            logger.info("Successfully loaded default theme")
         }.getOrThrow()
 
     }

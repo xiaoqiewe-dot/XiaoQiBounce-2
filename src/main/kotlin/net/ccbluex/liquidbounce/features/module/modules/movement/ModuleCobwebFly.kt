@@ -41,7 +41,7 @@ object ModuleCobwebFly : ClientModule("CobwebFly", Category.MOVEMENT) {
     private val onlyInCobweb by boolean("OnlyInCobweb", true)
 
     private fun isInCobweb(): Boolean {
-        val box = player.box
+        val box = player.boundingBox
         return box.collideBlockIntersects(checkCollisionShape = false) { it is CobwebBlock }
     }
 
@@ -80,6 +80,6 @@ object ModuleCobwebFly : ClientModule("CobwebFly", Category.MOVEMENT) {
         player.setVelocity(newVelX, newVelY, newVelZ)
 
         // Reduce server-side slow effects while in webs by marking on-ground false
-        if (inWeb) player.onGround = false
+        if (inWeb) player.setOnGround(false)
     }
 }

@@ -215,7 +215,7 @@ dependencies {
 }
 
 tasks.processResources {
-    dependsOn("bundleTheme")
+//    dependsOn("bundleTheme")
 
     val contributors = JsonOutput.prettyPrint(
         JsonOutput.toJson(getContributors("CCBlueX", "LiquidBounce"))
@@ -298,13 +298,13 @@ tasks.register<NodeTask>("bundleTheme") {
     outputs.files("src-theme/resources/assets/liquidbounce/default_theme.zip")
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDirs("src-theme/resources")
-        }
-    }
-}
+//sourceSets {
+//    main {
+//        resources {
+//            srcDirs("src-theme/resources")
+//        }
+//    }
+//}
 
 // ensure that the encoding is set to UTF-8, no matter what the system default is
 // this fixes some edge cases with special characters not displaying correctly
@@ -397,7 +397,7 @@ tasks.register<Copy>("copyZipInclude") {
 }
 
 tasks.named("sourcesJar") {
-    dependsOn("bundleTheme")
+//    dependsOn("bundleTheme")
 }
 
 tasks.named("build") {
