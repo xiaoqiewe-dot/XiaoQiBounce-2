@@ -82,17 +82,6 @@ object ModuleItemImageReplace : ClientModule("ItemImageReplace", Category.RENDER
         itemTextureMap.clear()
     }
 
-    init {
-        // Rebuild mappings when config changes
-        withScope {
-            mappings.asStateFlow().debounce { 2.seconds }.collectLatest {
-                // Wait for client init
-                while (mc.player == null) delay(1.seconds)
-                rebuildMappings()
-            }
-        }
-    }
-
     private fun rebuildMappings() {
         itemTextureMap.clear()
         val list = mappings.toList()
@@ -119,7 +108,7 @@ object ModuleItemImageReplace : ClientModule("ItemImageReplace", Category.RENDER
         fileIdCache[file]?.let { return it }
         return runCatching {
             val image = file.inputStream().use { NativeImage.read(it) }
-            val id = Identifier.of("liquidbounce", "custom-item-" + file.nameWithoutExtension.lowercase().replace("[^a-z0-9_\-]".toRegex(), "_") + "-" + System.currentTimeMillis().toString(36))
+            val id = Identifier.of("liquidbounce", "custom-item-" + file.nameWithoutExtension.lowercase().replace("[^a-z0-9_-]".toRegex(), "_") + "-" + System.currentTimeMillis().toString(36))
             mc.textureManager.registerTexture(id, NativeImageBackedTexture(image))
             fileIdCache[file] = id
             id

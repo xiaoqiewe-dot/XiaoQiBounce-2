@@ -89,12 +89,12 @@ object ModuleSkinChanger : ClientModule("SkinChanger", Category.RENDER) {
             targetUsername.asStateFlow().debounce { 2.seconds }.collectLatest { _ -> applyOverride() }
         }
         withScope {
-            useLocalFile.asStateFlow().debounce { 1.seconds }.collectLatest { _ ->
+            useLocalFile.asStateFlow().debounce { 1.seconds }.collectLatest { isEnabled ->
                 // On toggle, attempt to apply current selection
                 while (mc.player == null) { delay(1.seconds) }
                 val target = targetUsername.get().trim()
                 val fileName = skinFileName.get().trim()
-                if (it && fileName.isNotEmpty()) {
+                if (isEnabled && fileName.isNotEmpty()) {
                     val file = File(skinsDir, fileName)
                     createSupplierFromFile(file)?.let { supplier ->
                         val uuid = resolveUuid(target) ?: mc.player!!.uuid

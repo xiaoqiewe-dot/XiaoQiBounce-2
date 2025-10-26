@@ -65,12 +65,12 @@ internal object VelocityGrimReverse : VelocityMode("GrimReverse") {
                     val noiseX = randomNoise()
                     val noiseZ = randomNoise()
 
-                    knockback.x = -(knockback.x * (modifier + noiseX)).toFloat()
-                    knockback.z = -(knockback.z * (modifier + noiseZ)).toFloat()
+                    knockback.x = -(knockback.x * (modifier + noiseX))
+                    knockback.z = -(knockback.z * (modifier + noiseZ))
 
                     if (invertVertical) {
                         val noiseY = randomNoise(divider = 1.5)
-                        knockback.y = -(knockback.y * (modifier + noiseY)).toFloat()
+                        knockback.y = -(knockback.y * (modifier + noiseY))
                     }
 
                     NoFallBlink.waitUntilGround = true
