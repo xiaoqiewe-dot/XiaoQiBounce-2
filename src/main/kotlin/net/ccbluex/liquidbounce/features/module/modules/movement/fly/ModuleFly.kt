@@ -78,7 +78,7 @@ object ModuleFly : ClientModule("Fly", Category.MOVEMENT, aliases = arrayOf("Gli
             FlyGrim2859V,
             FlyGrimStealth,
             FlyTpAscend,
-            FlyFreezeTp,
+            FlyFreezeTP,
             FlyHeypixelStyle,
             FlyDashFlight,
             FlySpartan524,
