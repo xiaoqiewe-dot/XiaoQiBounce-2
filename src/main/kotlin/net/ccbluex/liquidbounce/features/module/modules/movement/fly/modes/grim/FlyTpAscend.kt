@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes
+package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.grim
 
 // Correct imports for LBY 0.31.1
 import net.ccbluex.liquidbounce.config.types.nesting.Choice
@@ -38,8 +38,8 @@ internal object FlyTpAscend : Choice("TpAscend"), MinecraftShortcuts { // Implem
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
-    private val ascendSpeed = 0.1 // Blocks per tick to ascend
-    private val moveSpeed = 0.3   // Blocks per TP move
+    private const val ASCEND_SPEED = 0.1 // Blocks per tick to ascend
+    private const val MOVE_SPEED = 0.3   // Blocks per TP move
 
     @Suppress("unused")
     private val tickHandler = handler<PlayerTickEvent> {
@@ -63,7 +63,7 @@ internal object FlyTpAscend : Choice("TpAscend"), MinecraftShortcuts { // Implem
 
         // Ascend by sending a TP packet with increased Y
         val newX = player.x
-        val newY = player.y + ascendSpeed
+        val newY = player.y + ASCEND_SPEED
         val newZ = player.z
         val newOnGround = false // Always false while ascending
 
@@ -91,21 +91,21 @@ internal object FlyTpAscend : Choice("TpAscend"), MinecraftShortcuts { // Implem
         var moveX = 0.0
         var moveZ = 0.0
 
-        if (options.forwardKey.isPressed) { // Forward
-            moveX -= Math.sin(Math.toRadians(player.yaw.toDouble())) * moveSpeed
-            moveZ += Math.cos(Math.toRadians(player.yaw.toDouble())) * moveSpeed
+        if (options.forwardKey.isPressed) {
+            moveX -= Math.sin(Math.toRadians(player.yaw.toDouble())) * MOVE_SPEED
+            moveZ += Math.cos(Math.toRadians(player.yaw.toDouble())) * MOVE_SPEED
         }
-        if (options.backKey.isPressed) { // Backward
-            moveX += Math.sin(Math.toRadians(player.yaw.toDouble())) * moveSpeed
-            moveZ -= Math.cos(Math.toRadians(player.yaw.toDouble())) * moveSpeed
+        if (options.backKey.isPressed) {
+            moveX += Math.sin(Math.toRadians(player.yaw.toDouble())) * MOVE_SPEED
+            moveZ -= Math.cos(Math.toRadians(player.yaw.toDouble())) * MOVE_SPEED
         }
-        if (options.leftKey.isPressed) { // Left (Strafe)
-            moveX += Math.cos(Math.toRadians(player.yaw.toDouble())) * moveSpeed
-            moveZ += Math.sin(Math.toRadians(player.yaw.toDouble())) * moveSpeed
+        if (options.leftKey.isPressed) {
+            moveX += Math.cos(Math.toRadians(player.yaw.toDouble())) * MOVE_SPEED
+            moveZ += Math.sin(Math.toRadians(player.yaw.toDouble())) * MOVE_SPEED
         }
-        if (options.rightKey.isPressed) { // Right (Strafe)
-            moveX -= Math.cos(Math.toRadians(player.yaw.toDouble())) * moveSpeed
-            moveZ -= Math.sin(Math.toRadians(player.yaw.toDouble())) * moveSpeed
+        if (options.rightKey.isPressed) {
+            moveX -= Math.cos(Math.toRadians(player.yaw.toDouble())) * MOVE_SPEED
+            moveZ -= Math.sin(Math.toRadians(player.yaw.toDouble())) * MOVE_SPEED
         }
 
         if (moveX != 0.0 || moveZ != 0.0) {

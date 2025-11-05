@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes
+package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.grim
 
 import net.ccbluex.liquidbounce.config.types.nesting.Choice
 import net.ccbluex.liquidbounce.config.types.nesting.ChoiceConfigurable
@@ -57,7 +57,11 @@ internal object FlyHeypixelStyle : Choice("HeypixelStyle"), MinecraftShortcuts {
             // Apply an upward force to counteract gravity (which is ~0.08 blocks/tick²)
             // The `hoverStrength` determines how strongly we push up.
             // A value slightly less than gravity can create a slow sink/rise effect if desired.
-            player.setVelocity(player.velocity.x, (player.velocity.y + hoverStrength).coerceAtMost(0.5), player.velocity.z)
+            player.setVelocity(
+                player.velocity.x,
+                (player.velocity.y + hoverStrength).coerceAtMost(0.5),
+                player.velocity.z
+            )
         } else {
             // If somehow on ground while enabled, prevent falling through blocks instantly
             // by not applying a large positive Y velocity. Let natural jump handle it if needed.

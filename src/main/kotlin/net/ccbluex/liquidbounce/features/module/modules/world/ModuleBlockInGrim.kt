@@ -50,11 +50,7 @@ object ModuleBlockInGrim : ClientModule("BlockInGrim", Category.WORLD) {
     private var totalBlocksToPlace = 0
     private var targetPositions = mutableListOf<BlockPos>()
 
-/**
- * 启用功能时的初始化方法
- * 重置计时器、计数器和目标位置列表
- * 根据扩展设置计算需要放置方块的目标位置
- */
+    @Suppress("CognitiveComplexMethod")
     override fun enable() {
         super.enable()  // 调用父类的启用方法
         // 初始化计时器和计数器

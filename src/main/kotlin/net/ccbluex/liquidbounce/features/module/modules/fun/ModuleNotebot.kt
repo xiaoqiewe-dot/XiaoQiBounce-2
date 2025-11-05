@@ -59,7 +59,14 @@ object ModuleNotebot : ClientModule("Notebot", Category.FUN) {
         if (++tickCounter % tempo != 0) return@handler
 
         val pitch = scalePitches[noteIndex % scalePitches.size]
-        world.playSound(player, player.blockPos, SoundEvents.BLOCK_NOTE_BLOCK_HARP.value(), SoundCategory.PLAYERS, 1.0f, pitch)
+        world.playSound(
+            player,
+            player.blockPos,
+            SoundEvents.BLOCK_NOTE_BLOCK_HARP.value(),
+            SoundCategory.PLAYERS,
+            1.0f,
+            pitch
+        )
         noteIndex++
     }
 }

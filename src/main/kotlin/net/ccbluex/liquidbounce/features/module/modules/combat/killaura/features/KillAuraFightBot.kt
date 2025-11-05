@@ -65,6 +65,7 @@ data class CombatTarget(
 /**
  * A fight bot that handles combat and movement automatically
  */
+@Suppress("TooManyFunctions")
 object KillAuraFightBot : NavigationBaseConfigurable<CombatContext>(ModuleKillAura, "FightBot", false) {
 
     private val opponentRange by float("OpponentRange", 3f, 0.1f..10f)

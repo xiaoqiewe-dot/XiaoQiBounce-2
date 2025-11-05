@@ -249,15 +249,4 @@ object ModuleVisualBlockReplace : ClientModule("VisualBlockReplace", Category.RE
         placedBlocks.add(pos) // Track the placed block
     }
 
-    /**
-     * Enum for block choices (used for config UI if needed)
-     */
-    private enum class BlockChoice(override val choiceName: String) : NamedChoice {
-        STONE("Stone"),
-        DIRT("Dirt"),
-        GRASS_BLOCK("Grass Block"),
-        COBBLESTONE("Cobblestone"),
-        GLASS("Glass"),
-        // Add more as needed
-    }
 }

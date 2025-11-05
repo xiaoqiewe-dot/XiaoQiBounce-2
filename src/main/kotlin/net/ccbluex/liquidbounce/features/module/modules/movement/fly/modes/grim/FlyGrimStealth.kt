@@ -91,66 +91,88 @@ internal object FlyGrimStealth : Choice("GrimStealth") {
         motionPhase += 0.1
         if (motionPhase > 6.283) motionPhase = 0.0
 
+        val disableFactor = computeDisableFactor()
         val currentBaseSpeed = baseSpeed
         val currentVerticalFactor = verticalFactor
         val currentHorizontalFactor = horizontalFactor
 
-        val disableFactor = if (disabling) {
+        return when (motionType) {
+            0 -> createCircularMotion(disableFactor, currentBaseSpeed, currentVerticalFactor)
+            1 -> createHorizontalSineMotion(
+                disableFactor,
+                currentBaseSpeed,
+                currentVerticalFactor,
+                currentHorizontalFactor
+            )
+            2 -> createRandomJitterMotion(
+                disableFactor,
+                currentBaseSpeed,
+                currentVerticalFactor,
+                currentHorizontalFactor
+            )
+            3 -> createRandomSwirlMotion(disableFactor, currentBaseSpeed)
+            else -> createCircularMotion(disableFactor, currentBaseSpeed, currentVerticalFactor)
+        }
+    }
+
+    private fun computeDisableFactor(): Float {
+        return if (disabling) {
             1.0f - (disableProgress.toFloat() / disableTicks.toFloat())
         } else {
             1.0f
         }
+    }
 
-        return when (motionType) {
-            0 -> {
-                val radius = 0.1 * disableFactor
-                Vec3d(
-                    radius * cos(motionPhase),
-                    (currentBaseSpeed + currentVerticalFactor *
-                        sin(motionPhase * 0.5)) * disableFactor,
-                    radius * sin(motionPhase)
-                )
-            }
-            1 -> {
-                Vec3d(
-                    currentHorizontalFactor * sin(motionPhase) * disableFactor,
-                    (currentBaseSpeed + currentVerticalFactor *
-                        sin(motionPhase * 2)) * disableFactor,
-                    currentHorizontalFactor * cos(motionPhase) * disableFactor
-                )
-            }
-            2 -> {
-                val random = Random(randomSeed + ticks)
-                Vec3d(
-                    (random.nextDouble() - 0.5) * currentHorizontalFactor *
-                        0.1 * disableFactor,
-                    (currentBaseSpeed + (random.nextDouble() - 0.5) *
-                        currentVerticalFactor * 0.1) * disableFactor,
-                    (random.nextDouble() - 0.5) * currentHorizontalFactor *
-                        0.1 * disableFactor
-                )
-            }
-            3 -> {
-                val random = Random(randomSeed + ticks)
-                Vec3d(
-                    (0.05 * cos(motionPhase) +
-                        (random.nextDouble() - 0.5) * 0.02) * disableFactor,
-                    (currentBaseSpeed + 0.03 * sin(motionPhase * 2) +
-                        (random.nextDouble() - 0.5) * 0.01) * disableFactor,
-                    (0.05 * sin(motionPhase) +
-                        (random.nextDouble() - 0.5) * 0.02) * disableFactor
-                )
-            }
-            else -> {
-                val radius = 0.1 * disableFactor
-                Vec3d(
-                    radius * cos(motionPhase),
-                    (currentBaseSpeed + currentVerticalFactor *
-                        sin(motionPhase * 0.5)) * disableFactor,
-                    radius * sin(motionPhase)
-                )
-            }
-        }
+    private fun createCircularMotion(
+        disableFactor: Float,
+        baseSpeed: Float,
+        verticalFactor: Float
+    ): Vec3d {
+        val radius = 0.1 * disableFactor
+        return Vec3d(
+            radius * cos(motionPhase),
+            (baseSpeed + verticalFactor * sin(motionPhase * 0.5)) * disableFactor,
+            radius * sin(motionPhase)
+        )
+    }
+
+    private fun createHorizontalSineMotion(
+        disableFactor: Float,
+        baseSpeed: Float,
+        verticalFactor: Float,
+        horizontalFactor: Float
+    ): Vec3d {
+        return Vec3d(
+            horizontalFactor * sin(motionPhase) * disableFactor,
+            (baseSpeed + verticalFactor * sin(motionPhase * 2)) * disableFactor,
+            horizontalFactor * cos(motionPhase) * disableFactor
+        )
+    }
+
+    private fun createRandomJitterMotion(
+        disableFactor: Float,
+        baseSpeed: Float,
+        verticalFactor: Float,
+        horizontalFactor: Float
+    ): Vec3d {
+        val random = Random(randomSeed + ticks)
+        return Vec3d(
+            (random.nextDouble() - 0.5) * horizontalFactor * 0.1 * disableFactor,
+            (baseSpeed + (random.nextDouble() - 0.5) * verticalFactor * 0.1) * disableFactor,
+            (random.nextDouble() - 0.5) * horizontalFactor * 0.1 * disableFactor
+        )
+    }
+
+    private fun createRandomSwirlMotion(
+        disableFactor: Float,
+        baseSpeed: Float
+    ): Vec3d {
+        val random = Random(randomSeed + ticks)
+        return Vec3d(
+            (0.05 * cos(motionPhase) + (random.nextDouble() - 0.5) * 0.02) * disableFactor,
+            (baseSpeed + 0.03 * sin(motionPhase * 2) + (random.nextDouble() - 0.5) * 0.01) * disableFactor,
+            (0.05 * sin(motionPhase) + (random.nextDouble() - 0.5) * 0.02) * disableFactor
+        )
     }
 
     val tickHandler = handler<PlayerTickEvent> { event ->
@@ -225,28 +247,26 @@ internal object FlyGrimStealth : Choice("GrimStealth") {
         }
     }
 
+    @Suppress("SwallowedException")
     private fun sendConfusionPacket() {
         try {
-            // 尝试使用 OnGroundOnly 构造函数，提供所有必需参数
             val packet = PlayerMoveC2SPacket.OnGroundOnly(
-                Random.nextBoolean(), // onGround
-                false // horizontalCollision
+                Random.nextBoolean(),
+                false
             )
             network.sendPacket(packet)
         } catch (e: Exception) {
             try {
-                // 尝试使用 PositionAndOnGround 构造函数，提供所有必需参数
                 val packet = PlayerMoveC2SPacket.PositionAndOnGround(
                     player.x,
                     player.y,
                     player.z,
-                    Random.nextBoolean(), // onGround
-                    false // horizontalCollision
+                    Random.nextBoolean(),
+                    false
                 )
                 network.sendPacket(packet)
             } catch (e2: Exception) {
-                // 如果所有方法都失败，就不发送混淆数据包
-                // 这不会影响主要功能
+                // Fallback: confusion packets are optional
             }
         }
     }
