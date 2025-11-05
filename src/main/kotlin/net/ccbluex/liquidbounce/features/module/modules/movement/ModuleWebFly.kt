@@ -29,16 +29,16 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * CobwebFly
+ * WebFly
  *
- * Allows controlled flight while inside cobwebs only.
+ * Allows controlled flight while inside cobwebs or in air.
  * Has higher priority than regular flight modules and supports adjustable speeds.
  */
-object ModuleCobwebFly : ClientModule("CobwebFly", Category.MOVEMENT) {
+object ModuleWebFly : ClientModule("WebFly", Category.MOVEMENT) {
 
     private val horizontalSpeed by float("HorizontalSpeed", 0.2f, 0.01f..0.64f)
     private val verticalSpeed by float("VerticalSpeed", 0.1f, 0.01f..1.1f)
-    private val onlyInCobweb by boolean("OnlyInCobweb", true)
+    private val onlyInCobweb by boolean("OnlyInCobweb", false)
 
     private fun isInCobweb(): Boolean {
         val box = player.boundingBox

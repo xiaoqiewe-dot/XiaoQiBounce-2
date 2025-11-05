@@ -290,7 +290,7 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleElytraRecast,
             ModuleElytraFly,
             ModuleFly,
-            ModuleCobwebFly,
+            ModuleWebFly,
             ModuleFreeze,
             ModuleHighJump,
             ModuleInventoryMove,
