@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.fireball.FlyFireball
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.grim.FlyFreezeTp
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.grim.FlyFreezeTP
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.grim.FlyGrim2859V
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.grim.FlyGrimStealth
 import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.polar.FlyHycraftDamage
@@ -79,6 +80,7 @@ object ModuleFly : ClientModule("Fly", Category.MOVEMENT, aliases = arrayOf("Gli
             FlyGrimStealth,
             FlyTpAscend,
             FlyFreezeTp,
+            FlyFreezeTP,
             FlyHeypixelStyle,
             FlyDashFlight,
             FlySpartan524,

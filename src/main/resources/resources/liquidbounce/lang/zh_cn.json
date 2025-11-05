@@ -361,7 +361,6 @@
   "liquidbounce.command.autodisable.subcommand.add.result.moduleAdded": "已添加模块\"%s\"。",
   "liquidbounce.command.autodisable.subcommand.remove.result.moduleNotPresent": "模块\"%s\"未被添加。",
   "liquidbounce.command.autodisable.subcommand.remove.result.moduleRemoved": "已移除模块\"%s\"。",
-
   "liquidbounce.command.models.subcommand.create.result.modelExists": "❌ 模型%s已存在。",
   "liquidbounce.command.models.subcommand.create.result.trainingStart": "⚡ 开始训练模型%s…",
   "liquidbounce.command.models.subcommand.create.result.samplesLoaded": "✔ 已加载%s个样本，用时%s。",
@@ -370,7 +369,6 @@
   "liquidbounce.command.models.subcommand.create.result.trainingEnd": "✔ 模型%s训练完成并成功保存，用时%s。",
   "liquidbounce.command.models.subcommand.create.result.trainingFailed": "❌ 训练失败，错误信息：%s",
   "liquidbounce.command.models.subcommand.create.result.invalidName": "❌ 模型名称无效。模型名称必须为字母数字且不包含空格。",
-
   "liquidbounce.command.models.subcommand.improve.result.modelNotFound": "❌ 未找到模型%s。",
   "liquidbounce.command.models.subcommand.improve.result.trainingStart": "⚡ 开始训练模型%s…",
   "liquidbounce.command.models.subcommand.improve.result.noSamples": "❌ 未找到该型号的模型 %s.",
@@ -378,15 +376,11 @@
   "liquidbounce.command.models.subcommand.improve.result.preparedData": "✔ 已在%s内准备好数据集。",
   "liquidbounce.command.models.subcommand.improve.result.trainingEnd": "✔ 模型%s训练完成并成功保存，用时%s。",
   "liquidbounce.command.models.subcommand.improve.result.trainingFailed": "❌ 训练失败，错误信息：%s",
-
   "liquidbounce.command.models.subcommand.reload.result.modelsReloaded": "✔ 模型已重新加载。",
-
   "liquidbounce.command.models.subcommand.delete.result.modelNotFound": "❌ 未找到模型%s。",
   "liquidbounce.command.models.subcommand.delete.result.modelDeleted": "✔ 模型%s已删除。",
-
   "liquidbounce.unsupportedDeepLearning": "❌ 深度学习引擎尚未初始化。您的系统可能不受支持。",
   "liquidbounce.rotationSystem.angleSmooth.minarai.fallback": "Minarai 需要深度学习引擎，因此会回退到 %s 角度平滑。",
-
   "liquidbounce.commandManager.commandExecuting": "已经在执行命令 \"%s\"，请稍候…",
   "liquidbounce.commandManager.commandNotExecutable": "无法执行命令 \"%s\"。",
   "liquidbounce.commandManager.commandTakesNoParameters": "命令没有包含任何参数。",
@@ -729,5 +723,12 @@
   "liquidbounce.module.anchor.description": "让你移动到水晶PvP的安全点里。",
   "liquidbounce.module.antiCheatDetect.messages.description": "Anti Cheat Detect 将尝试在你下次加入任何服务器/游戏时，通过监测 ping 参数来检测服务器的反作弊系统。请注意，结果可能不准确，特别是当服务器上有多个反作弊系统时。",
   "liquidbounce.module.xRitem.description": "把你的物品渲染成其他的",
-  "liquidbounce.module.WebFlight.description": "让服务器以为你在蜘蛛网里面然后进行飞行"
+  "liquidbounce.module.WebFlight.description": "让服务器以为你在蜘蛛网里面然后进行飞行",
+  "liquidbounce.module.derp.description": "让其他玩家觉得你在胡闹。",
+  "liquidbounce.module.itemScroller.description": "快速移动库存中的物品，同时按住SHIFT和LMB。",
+  "liquidbounce.module.translation.description": "为客户端设置自动翻译器。",
+  "liquidbounce.module.WebFly.description": "网络飞行允许你在蜘蛛网中或空气中进行受控飞行。",
+  "liquidbounce.module.WebFly.choice.OnlyInCobweb": "仅在蜘蛛网中",
+  "liquidbounce.module.WebFly.setting.HorizontalSpeed": "水平速度",
+  "liquidbounce.module.WebFly.setting.VerticalSpeed": "垂直速度"
 }
