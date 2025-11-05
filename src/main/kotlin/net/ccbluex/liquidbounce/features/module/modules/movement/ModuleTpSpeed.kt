@@ -68,18 +68,12 @@ object ModuleTpSpeed : ClientModule("TpSpeed", Category.MISC) {
                 // Format the .tp command string
                 val tpCommand = ".tp %.3f %.3f %.3f".format(x, y, z)
 
-                // --- KEY CHANGE: Execute command internally ---
-                // Instead of sending as chat message, execute it as a command
+                @Suppress("SwallowedException")
                 try {
-                    // Use CommandManager to parse and execute the command
-                    // This mimics typing the command in chat and pressing enter
                     CommandManager.execute(tpCommand)
                 } catch (e: Exception) {
-                    // Handle potential errors in command execution
-                    // e.printStackTrace() // Optional: Print stack trace for debugging
-                    // player.sendMessage(net.minecraft.text.Text.literal("Error executing command: $tpCommand"), false)
+                    // Command execution failure is non-fatal
                 }
-                // --- END KEY CHANGE ---
             }
 
             // Reset the chronometer for the next cycle

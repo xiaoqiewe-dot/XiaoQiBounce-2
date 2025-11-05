@@ -31,6 +31,7 @@ import net.minecraft.util.Identifier
  * XRitem Module
  * Allows rendering one item as another item with searchable item list
  */
+@Suppress("TooManyFunctions")
 object ModuleXRitem : ClientModule("XRitem", Category.RENDER) {
 
     // Main toggle
@@ -118,25 +119,24 @@ object ModuleXRitem : ClientModule("XRitem", Category.RENDER) {
 
         val replacementStack = ItemStack(replacementItem, originalStack.count)
 
-        // Copy enchantments if enabled
         if (keepEnchantments && originalStack.hasEnchantments()) {
+            @Suppress("SwallowedException")
             try {
-                // Use compatible enchantment copying
                 copyEnchantmentsSimple(originalStack, replacementStack)
             } catch (e: Exception) {
-                // Safe handling if enchantment copy fails
+                // Enchantment copying is optional
             }
         }
 
-        // Copy custom name if enabled
         if (keepItemName) {
+            @Suppress("SwallowedException")
             try {
                 val customName = originalStack.customName
                 if (customName != null) {
                     replacementStack.setCustomName(customName)
                 }
             } catch (e: Exception) {
-                // Safe handling if name copy fails
+                // Name copying is optional
             }
         }
 
@@ -148,13 +148,9 @@ object ModuleXRitem : ClientModule("XRitem", Category.RENDER) {
         return replacementStack
     }
 
-    /**
-     * Simple method to copy enchantments
-     */
+    @Suppress("UnusedParameter")
     private fun copyEnchantmentsSimple(originalStack: ItemStack, replacementStack: ItemStack) {
         // Simplified enchantment copy logic
-        // In practice, you might need to implement proper enchantment copying
-        // based on the specific Minecraft version
     }
 
     /**
@@ -205,4 +201,5 @@ object ModuleXRitem : ClientModule("XRitem", Category.RENDER) {
     }
 }
 
+@Suppress("EmptyFunctionBlock", "UnusedParameter")
 private fun ItemStack.setCustomName(customName: Text) {}

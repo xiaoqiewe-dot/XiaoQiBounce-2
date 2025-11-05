@@ -40,6 +40,7 @@ import java.util.*
  * BJDAntiBotMode - Enhanced detection for BJD-style bots.
  * Adds options to remove bots from client and mark nearby players as bots.
  */
+@Suppress("TooManyFunctions", "LoopWithTooManyJumpStatements")
 object BJDAntiBotMode : Choice("BJD"), ModuleAntiBot.IAntiBotMode {
 
     override val parent: ChoiceConfigurable<*>
