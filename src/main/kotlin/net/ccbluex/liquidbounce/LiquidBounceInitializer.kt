@@ -19,11 +19,16 @@
  */
 package net.ccbluex.liquidbounce
 
+import net.ccbluex.liquidbounce.event.EventManager
+import net.ccbluex.liquidbounce.event.events.ClientStartEvent
 import net.fabricmc.api.ClientModInitializer
 
 @Suppress("unused")
 object LiquidBounceInitializer : ClientModInitializer {
     override fun onInitializeClient() {
-        // Entry point for the mod
+        // Initialize the LiquidBounce client by first accessing the object to ensure
+        // the startHandler is registered, then fire the ClientStartEvent
+        LiquidBounce // Access the object to trigger initialization
+        EventManager.callEvent(ClientStartEvent)
     }
 }
