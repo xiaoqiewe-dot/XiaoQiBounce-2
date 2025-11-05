@@ -29,43 +29,41 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * FlyFreezeTp - Combines Freeze and Teleport to create a fly-like experience.
- * When enabled, it freezes the player (prevents movement) and continuously teleports
- * the player forward in the direction they are facing.
- * This allows for a form of "freezing" followed by "teleporting" flight.
+ * FlyFreezeTP - Alternates between Freeze and Teleport to create a fly-like experience.
+ * When enabled, it automatically toggles Freeze and performs teleports in the player's facing direction.
+ * This creates a flying motion through repeated freeze/unfreeze cycles with teleports.
  */
-internal object FlyFreezeTp : Choice("FreezeTp"), MinecraftShortcuts {
+internal object FlyFreezeTP : Choice("FreezeTP"), MinecraftShortcuts {
 
     override val parent: ChoiceConfigurable<*>
         get() = ModuleFly.modes
 
-    // --- CONFIGURABLES ---
-    /** Distance to teleport each tick (0.0001 to 0.1 blocks) */
+    // Distance to teleport each time freeze is toggled (0.0001 to 0.1 blocks)
     private val tpDistance by float("TPDistance", 0.05f, 0.0001f..0.1f, "blocks")
 
-    /** Speed of teleportation in ticks (0.01 to 10 ticks per teleport) */
-    private val tpSpeed by float("TPSpeed", 1.0f, 0.01f..10f, "ticks")
-    // --- END CONFIGURABLES ---
-
-    private var teleportTimer = 0f
-    private var wasFrozen = false
+    // Timer for managing freeze state changes
+    private var cycleTimer = 0
+    // Tracks the initial freeze state
+    private var initialFreezeToggled = false
 
     override fun enable() {
-        // Ensure freeze is enabled
+        cycleTimer = 0
+        initialFreezeToggled = false
+
+        // Toggle freeze to enabled state
         if (!net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze.enabled) {
             net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze.enable()
+            initialFreezeToggled = true
         }
-        wasFrozen = true
-        teleportTimer = 0f
     }
 
     override fun disable() {
-        // Optionally disable freeze if it was enabled by this mode
-        if (wasFrozen && net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze.enabled) {
+        // Ensure freeze is disabled when this mode is disabled
+        if (net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze.enabled && initialFreezeToggled) {
             net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze.disable()
         }
-        wasFrozen = false
-        teleportTimer = 0f
+        cycleTimer = 0
+        initialFreezeToggled = false
     }
 
     @Suppress("unused")
@@ -74,55 +72,56 @@ internal object FlyFreezeTp : Choice("FreezeTp"), MinecraftShortcuts {
 
         val player = mc.player ?: return@handler
 
-        // --- FREEZE LOGIC ---
-        // Cancel the tick event to freeze the player
-        // This is handled by the ModuleFreeze itself, but we ensure it's active
-        if (!net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze.enabled) {
-            net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze.enable()
+        // Cycle through: Freeze ON -> TP -> Freeze OFF -> TP -> repeat
+        cycleTimer++
+
+        when {
+            cycleTimer == 1 -> {
+                // First tick: Enable freeze and perform first teleport
+                if (!net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze.enabled) {
+                    net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze.enable()
+                }
+                performTeleport(player)
+            }
+            cycleTimer == 2 -> {
+                // Second tick: Disable freeze
+                if (net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze.enabled) {
+                    net.ccbluex.liquidbounce.features.module.modules.movement.ModuleFreeze.disable()
+                }
+            }
+            cycleTimer == 3 -> {
+                // Third tick: Perform teleport while unfrozen
+                performTeleport(player)
+            }
+            cycleTimer == 4 -> {
+                // Fourth tick: Reset for next cycle
+                cycleTimer = 0
+            }
         }
-        // --- END FREEZE LOGIC ---
+    }
 
-        // --- TELEPORT LOGIC ---
-        // Increment the teleport timer
-        teleportTimer += 1.0f // Each tick
+    private fun performTeleport(player: net.minecraft.entity.player.PlayerEntity) {
+        // Calculate teleport direction based on player's yaw
+        val yawRad = Math.toRadians(player.yaw.toDouble())
+        val deltaX = -sin(yawRad) * tpDistance
+        val deltaZ = cos(yawRad) * tpDistance
 
-        // Check if it's time to teleport based on the configured speed
-        if (teleportTimer >= tpSpeed) {
-            // Reset the timer
-            teleportTimer = 0f
+        // Calculate new position
+        val newX = player.x + deltaX
+        val newZ = player.z + deltaZ
 
-            // Calculate the teleport direction based on player's yaw
-            val yawRad = Math.toRadians(player.yaw.toDouble())
-            val deltaX = -sin(yawRad) * tpDistance
-            val deltaZ = cos(yawRad) * tpDistance
-
-            // Calculate the new position
-            val newX = player.x + deltaX
-            val newZ = player.z + deltaZ
-
-            // Send a packet to teleport the player
-            // We'll send a full packet to ensure the server knows the new position
-            // This is a simplified version; in practice, you might want to use
-            // a more precise packet type or consider the implications of sending
-            // too many packets (e.g., anti-cheat detection).
-            network.sendPacket(
-                PlayerMoveC2SPacket.Full(
-                    newX,
-                    player.y,
-                    newZ,
-                    player.yaw,
-                    player.pitch,
-                    player.isOnGround, // Keep the original onGround state
-                    player.horizontalCollision // Keep the original horizontalCollision state
-                )
+        // Send teleport packet
+        network.sendPacket(
+            PlayerMoveC2SPacket.PositionAndOnGround(
+                newX,
+                player.y,
+                newZ,
+                false,
+                player.horizontalCollision
             )
+        )
 
-            // Optionally, also update the player's position locally
-            // This can help prevent desync, but it's not strictly necessary if the server
-            // handles the packet correctly.
-            // player.setPosition(newX, player.y, newZ)
-
-            // --- END TELEPORT LOGIC ---
-        }
+        // Update player position locally
+        player.setPosition(newX, player.y, newZ)
     }
 }
