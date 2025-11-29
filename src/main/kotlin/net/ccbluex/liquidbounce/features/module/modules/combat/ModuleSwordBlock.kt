@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.PlayerTickEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -134,8 +135,7 @@ object ModuleSwordBlock : ClientModule("SwordBlock", Category.COMBAT, aliases = 
         try {
             network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(true, false))
         } catch (e: Exception) {
-            // Handle network exceptions
-            e.printStackTrace()
+            LiquidBounce.logger.error("Failed to send sneak packet", e)
         }
 
         // If client should show sneak, set local sneak state
@@ -152,8 +152,7 @@ object ModuleSwordBlock : ClientModule("SwordBlock", Category.COMBAT, aliases = 
         try {
             network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(false, false))
         } catch (e: Exception) {
-            // Handle network exceptions
-            e.printStackTrace()
+            LiquidBounce.logger.error("Failed to send stand up packet", e)
         }
 
         // Restore original sneak state
@@ -186,6 +185,7 @@ object ModuleSwordBlock : ClientModule("SwordBlock", Category.COMBAT, aliases = 
      * Check if specific player and item should hide offhand
      * Used by other Mixin classes
      */
+    @Suppress("UNUSED_PARAMETER")
     fun shouldHideOffhand(player: AbstractClientPlayerEntity, item: Item): Boolean {
         return hideOffhand && isBlocking && enabled && player == this.player
     }
@@ -194,6 +194,7 @@ object ModuleSwordBlock : ClientModule("SwordBlock", Category.COMBAT, aliases = 
      * Check if specific player and item should hide offhand
      * Used by other Mixin classes
      */
+    @Suppress("UNUSED_PARAMETER")
     fun shouldHideOffhand(player: PlayerEntity, item: Item): Boolean {
         return hideOffhand && isBlocking && enabled && player == this.player
     }

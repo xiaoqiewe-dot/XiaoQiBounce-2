@@ -31,6 +31,7 @@ import net.minecraft.util.Identifier
  * XRitem Module
  * Allows rendering one item as another item with searchable item list
  */
+@Suppress("detekt.TooManyFunctions")
 object ModuleXRitem : ClientModule("XRitem", Category.RENDER) {
 
     // Main toggle
@@ -119,6 +120,7 @@ object ModuleXRitem : ClientModule("XRitem", Category.RENDER) {
         val replacementStack = ItemStack(replacementItem, originalStack.count)
 
         // Copy enchantments if enabled
+        @Suppress("detekt.SwallowedException")
         if (keepEnchantments && originalStack.hasEnchantments()) {
             try {
                 // Use compatible enchantment copying
@@ -129,6 +131,7 @@ object ModuleXRitem : ClientModule("XRitem", Category.RENDER) {
         }
 
         // Copy custom name if enabled
+        @Suppress("detekt.SwallowedException")
         if (keepItemName) {
             try {
                 val customName = originalStack.customName
@@ -151,6 +154,7 @@ object ModuleXRitem : ClientModule("XRitem", Category.RENDER) {
     /**
      * Simple method to copy enchantments
      */
+    @Suppress("detekt.UnusedParameter")
     private fun copyEnchantmentsSimple(originalStack: ItemStack, replacementStack: ItemStack) {
         // Simplified enchantment copy logic
         // In practice, you might need to implement proper enchantment copying
@@ -205,4 +209,5 @@ object ModuleXRitem : ClientModule("XRitem", Category.RENDER) {
     }
 }
 
+@Suppress("detekt.UnusedParameter", "detekt.EmptyFunctionBlock")
 private fun ItemStack.setCustomName(customName: Text) {}

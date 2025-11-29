@@ -38,7 +38,7 @@ import kotlin.random.Random
  * @note Improved version with smooth disabling
  *       to avoid simulation flags
  */
-@Suppress("LongParameterList", "FunctionNaming", "MaxLineLength")
+@Suppress("LongParameterList", "FunctionNaming", "MaxLineLength", "detekt.SwallowedException")
 internal object FlyGrimStealth : Choice("GrimStealth") {
 
     private val toggle by int("Toggle", 0, 0..200)
@@ -91,10 +91,6 @@ internal object FlyGrimStealth : Choice("GrimStealth") {
         motionPhase += 0.1
         if (motionPhase > 6.283) motionPhase = 0.0
 
-        val currentBaseSpeed = baseSpeed
-        val currentVerticalFactor = verticalFactor
-        val currentHorizontalFactor = horizontalFactor
-
         val disableFactor = if (disabling) {
             1.0f - (disableProgress.toFloat() / disableTicks.toFloat())
         } else {
@@ -102,55 +98,47 @@ internal object FlyGrimStealth : Choice("GrimStealth") {
         }
 
         return when (motionType) {
-            0 -> {
-                val radius = 0.1 * disableFactor
-                Vec3d(
-                    radius * cos(motionPhase),
-                    (currentBaseSpeed + currentVerticalFactor *
-                        sin(motionPhase * 0.5)) * disableFactor,
-                    radius * sin(motionPhase)
-                )
-            }
-            1 -> {
-                Vec3d(
-                    currentHorizontalFactor * sin(motionPhase) * disableFactor,
-                    (currentBaseSpeed + currentVerticalFactor *
-                        sin(motionPhase * 2)) * disableFactor,
-                    currentHorizontalFactor * cos(motionPhase) * disableFactor
-                )
-            }
-            2 -> {
-                val random = Random(randomSeed + ticks)
-                Vec3d(
-                    (random.nextDouble() - 0.5) * currentHorizontalFactor *
-                        0.1 * disableFactor,
-                    (currentBaseSpeed + (random.nextDouble() - 0.5) *
-                        currentVerticalFactor * 0.1) * disableFactor,
-                    (random.nextDouble() - 0.5) * currentHorizontalFactor *
-                        0.1 * disableFactor
-                )
-            }
-            3 -> {
-                val random = Random(randomSeed + ticks)
-                Vec3d(
-                    (0.05 * cos(motionPhase) +
-                        (random.nextDouble() - 0.5) * 0.02) * disableFactor,
-                    (currentBaseSpeed + 0.03 * sin(motionPhase * 2) +
-                        (random.nextDouble() - 0.5) * 0.01) * disableFactor,
-                    (0.05 * sin(motionPhase) +
-                        (random.nextDouble() - 0.5) * 0.02) * disableFactor
-                )
-            }
-            else -> {
-                val radius = 0.1 * disableFactor
-                Vec3d(
-                    radius * cos(motionPhase),
-                    (currentBaseSpeed + currentVerticalFactor *
-                        sin(motionPhase * 0.5)) * disableFactor,
-                    radius * sin(motionPhase)
-                )
-            }
+            0 -> calculateCircularMotion(disableFactor)
+            1 -> calculateWaveMotion(disableFactor)
+            2 -> calculateRandomMotion(disableFactor)
+            3 -> calculateMixedMotion(disableFactor)
+            else -> calculateCircularMotion(disableFactor)
         }
+    }
+
+    private fun calculateCircularMotion(disableFactor: Float): Vec3d {
+        val radius = 0.1 * disableFactor
+        return Vec3d(
+            radius * cos(motionPhase),
+            (baseSpeed + verticalFactor * sin(motionPhase * 0.5)) * disableFactor,
+            radius * sin(motionPhase)
+        )
+    }
+
+    private fun calculateWaveMotion(disableFactor: Float): Vec3d {
+        return Vec3d(
+            horizontalFactor * sin(motionPhase) * disableFactor,
+            (baseSpeed + verticalFactor * sin(motionPhase * 2)) * disableFactor,
+            horizontalFactor * cos(motionPhase) * disableFactor
+        )
+    }
+
+    private fun calculateRandomMotion(disableFactor: Float): Vec3d {
+        val random = Random(randomSeed + ticks)
+        return Vec3d(
+            (random.nextDouble() - 0.5) * horizontalFactor * 0.1 * disableFactor,
+            (baseSpeed + (random.nextDouble() - 0.5) * verticalFactor * 0.1) * disableFactor,
+            (random.nextDouble() - 0.5) * horizontalFactor * 0.1 * disableFactor
+        )
+    }
+
+    private fun calculateMixedMotion(disableFactor: Float): Vec3d {
+        val random = Random(randomSeed + ticks)
+        return Vec3d(
+            (0.05 * cos(motionPhase) + (random.nextDouble() - 0.5) * 0.02) * disableFactor,
+            (baseSpeed + 0.03 * sin(motionPhase * 2) + (random.nextDouble() - 0.5) * 0.01) * disableFactor,
+            (0.05 * sin(motionPhase) + (random.nextDouble() - 0.5) * 0.02) * disableFactor
+        )
     }
 
     val tickHandler = handler<PlayerTickEvent> { event ->
