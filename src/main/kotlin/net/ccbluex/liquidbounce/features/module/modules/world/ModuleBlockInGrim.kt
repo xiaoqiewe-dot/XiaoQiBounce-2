@@ -27,6 +27,7 @@ import net.minecraft.block.Blocks
 import net.minecraft.item.BlockItem
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
+import net.minecraft.text.Text
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
@@ -55,6 +56,7 @@ object ModuleBlockInGrim : ClientModule("BlockInGrim", Category.WORLD) {
  * 重置计时器、计数器和目标位置列表
  * 根据扩展设置计算需要放置方块的目标位置
  */
+    @Suppress("detekt.CognitiveComplexMethod")
     override fun enable() {
         super.enable()  // 调用父类的启用方法
         // 初始化计时器和计数器
@@ -138,9 +140,8 @@ object ModuleBlockInGrim : ClientModule("BlockInGrim", Category.WORLD) {
         // Find a block item in hotbar
         val slot = findBlockInHotbar()
         if (slot == -1) {
-            // mc.inGameHud?.chatHud?.addMessage(net.minecraft.text.Text.literal("No blocks found in hotbar!")) // Alternative chat
-            player.sendMessage(net.minecraft.text.Text.literal("No blocks found in hotbar!"), false) // Use player.sendMessage
-            disable() // Disable if no blocks available
+            player.sendMessage(Text.literal("No blocks found in hotbar!"), false)
+            disable()
             return@handler
         }
 
@@ -238,8 +239,12 @@ object ModuleBlockInGrim : ClientModule("BlockInGrim", Category.WORLD) {
             if (!placed) {
                 // If no suitable face is found, skip this block (might happen if surrounded by air)
                 placedCount++
-                placeTimer = delay // Still increment timer to avoid infinite loop on this block
-                player.sendMessage(net.minecraft.text.Text.literal("Skipping block at $targetPos, no solid face found."), false)
+                placeTimer = delay
+                player.sendMessage(
+                    Text.literal("Skipping block at $targetPos, no solid face found."),
+                    false
+                )
             }
         }
-    }}
+    }
+}

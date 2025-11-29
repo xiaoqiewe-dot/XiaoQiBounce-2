@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
-package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes
+package net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.grim
 
 import net.ccbluex.liquidbounce.config.types.nesting.Choice
 import net.ccbluex.liquidbounce.config.types.nesting.ChoiceConfigurable

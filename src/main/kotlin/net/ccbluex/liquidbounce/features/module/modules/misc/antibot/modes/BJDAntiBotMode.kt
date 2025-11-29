@@ -40,6 +40,7 @@ import java.util.*
  * BJDAntiBotMode - Enhanced detection for BJD-style bots.
  * Adds options to remove bots from client and mark nearby players as bots.
  */
+@Suppress("detekt.TooManyFunctions")
 object BJDAntiBotMode : Choice("BJD"), ModuleAntiBot.IAntiBotMode {
 
     override val parent: ChoiceConfigurable<*>
@@ -85,7 +86,7 @@ object BJDAntiBotMode : Choice("BJD"), ModuleAntiBot.IAntiBotMode {
         playerMovementCount.clear()
     }
 
-    @Suppress("unused")
+    @Suppress("unused", "detekt.LoopWithTooManyJumpStatements")
     private val packetHandler = handler<PacketEvent> { event ->
         val packet = event.packet
 
@@ -148,7 +149,7 @@ object BJDAntiBotMode : Choice("BJD"), ModuleAntiBot.IAntiBotMode {
         }
     }
 
-    @Suppress("unused")
+    @Suppress("unused", "detekt.LoopWithTooManyJumpStatements")
     private val tickHandler = handler<PlayerTickEvent> { event ->
         if (!ModuleAntiBot.enabled) return@handler
 

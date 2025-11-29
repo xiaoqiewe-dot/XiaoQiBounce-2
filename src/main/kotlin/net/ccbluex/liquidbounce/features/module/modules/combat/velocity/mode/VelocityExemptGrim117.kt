@@ -101,18 +101,33 @@ internal object VelocityExemptGrim117 : VelocityMode("ExemptGrim117") {
 
             repeat(repeatCount) {
                 // Add microscopic random offsets to break patterns
-                val offsetX = if (useRandomOffset && Random.nextFloat() > 0.3f)
-                    (Random.nextDouble() - 0.5) * 0.001 else 0.0
-                val offsetY = if (useRandomOffset && Random.nextFloat() > 0.3f)
-                    (Random.nextDouble() - 0.5) * 0.001 else 0.0
-                val offsetZ = if (useRandomOffset && Random.nextFloat() > 0.3f)
-                    (Random.nextDouble() - 0.5) * 0.001 else 0.0
+                val offsetX = if (useRandomOffset && Random.nextFloat() > 0.3f) {
+                    (Random.nextDouble() - 0.5) * 0.001
+                } else {
+                    0.0
+                }
+                val offsetY = if (useRandomOffset && Random.nextFloat() > 0.3f) {
+                    (Random.nextDouble() - 0.5) * 0.001
+                } else {
+                    0.0
+                }
+                val offsetZ = if (useRandomOffset && Random.nextFloat() > 0.3f) {
+                    (Random.nextDouble() - 0.5) * 0.001
+                } else {
+                    0.0
+                }
 
                 // Add tiny random look variations to avoid AimDuplicateLook
-                val lookYaw = if (useRandomOffset)
-                    player.yaw + (Random.nextFloat() - 0.5f) * 0.5f else player.yaw
-                val lookPitch = if (useRandomOffset)
-                    player.pitch + (Random.nextFloat() - 0.5f) * 0.3f else player.pitch
+                val lookYaw = if (useRandomOffset) {
+                    player.yaw + (Random.nextFloat() - 0.5f) * 0.5f
+                } else {
+                    player.yaw
+                }
+                val lookPitch = if (useRandomOffset) {
+                    player.pitch + (Random.nextFloat() - 0.5f) * 0.3f
+                } else {
+                    player.pitch
+                }
 
                 network.sendPacket(
                     PlayerMoveC2SPacket.Full(

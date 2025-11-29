@@ -70,14 +70,13 @@ object ModuleTpSpeed : ClientModule("TpSpeed", Category.MISC) {
 
                 // --- KEY CHANGE: Execute command internally ---
                 // Instead of sending as chat message, execute it as a command
+                @Suppress("detekt.SwallowedException")
                 try {
                     // Use CommandManager to parse and execute the command
                     // This mimics typing the command in chat and pressing enter
                     CommandManager.execute(tpCommand)
                 } catch (e: Exception) {
                     // Handle potential errors in command execution
-                    // e.printStackTrace() // Optional: Print stack trace for debugging
-                    // player.sendMessage(net.minecraft.text.Text.literal("Error executing command: $tpCommand"), false)
                 }
                 // --- END KEY CHANGE ---
             }

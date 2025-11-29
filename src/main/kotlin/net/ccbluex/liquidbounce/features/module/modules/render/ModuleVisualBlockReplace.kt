@@ -252,6 +252,7 @@ object ModuleVisualBlockReplace : ClientModule("VisualBlockReplace", Category.RE
     /**
      * Enum for block choices (used for config UI if needed)
      */
+    @Suppress("detekt.UnusedPrivateClass")
     private enum class BlockChoice(override val choiceName: String) : NamedChoice {
         STONE("Stone"),
         DIRT("Dirt"),
