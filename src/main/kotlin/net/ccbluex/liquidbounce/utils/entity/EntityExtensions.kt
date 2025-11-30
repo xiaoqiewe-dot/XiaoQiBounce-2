@@ -478,8 +478,7 @@ fun LivingEntity.getDamageFromExplosion(
 /**
  * Basically [ExplosionImpl.calculateReceivedDamage] but this method allows us to exclude blocks using [exclude].
  */
-@Suppress("NestedBlockDepth")
-@Suppress("detekt.UnusedParameter")
+@Suppress("NestedBlockDepth", "detekt.UnusedParameter")
 fun LivingEntity.getExposureToExplosion(
     source: Vec3d,
     exclude: Array<BlockPos>?,

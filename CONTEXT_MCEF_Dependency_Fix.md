@@ -36,12 +36,42 @@ curl -I https://jitpack.io/com/github/CCBlueX/mcef/3.1.2-1.21.4/mcef-3.1.2-1.21.
 - `3.1.0-1.21.4`
 - `3.1.2-1.21.4` （当前使用）
 
+## 后续编译问题修复
+
+### 问题 1：导入错误
+CI 构建时出现以下编译错误：
+- `ModuleFly.kt:80` - Unresolved reference 'FlyTpAscend'
+- `ModuleFly.kt:82` - Unresolved reference 'FlyHeypixelStyle'
+- `ModuleFly.kt:83` - Unresolved reference 'FlyDashFlight'
+
+**原因**：根据之前的修复（见 `CONTEXT_CI_Gradle_Detekt_Fix.md`），这些类的包路径被修改到了 `modes.grim` 子包，但导入语句未更新。
+
+**修复**：在 `ModuleFly.kt` 中添加正确的导入语句：
+```kotlin
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.grim.FlyDashFlight
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.grim.FlyHeypixelStyle
+import net.ccbluex.liquidbounce.features.module.modules.movement.fly.modes.grim.FlyTpAscend
+```
+
+### 问题 2：重复注解
+CI 构建时出现错误：
+- `EntityExtensions.kt:482` - This annotation is not repeatable
+
+**原因**：使用了多个独立的 `@Suppress` 注解，但 Kotlin 中应该将多个抑制规则放在同一个注解中。
+
+**修复**：将两个 `@Suppress` 注解合并为一个：
+```kotlin
+@Suppress("NestedBlockDepth", "detekt.UnusedParameter")
+```
+
+### 版本号更新
+- `gradle.properties`: 将 `mod_version` 从 `0.1.10` 更新到 `0.1.11`
+
 ## 构建情况
-- 由于当前环境中没有配置 Java/JDK（JAVA_HOME 未设置），无法在本地执行完整构建验证
 - 修改已提交到分支 `fix-mcef-dependency-resolution`，待 CI 环境验证
 
 ## 恢复次数
-- 0（等待 CI 构建验证）
+- 1（修复了导入错误和重复注解问题）
 
 ## 相关文件
 - `/home/engine/project/gradle.properties` - 依赖版本配置
