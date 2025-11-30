@@ -68,10 +68,14 @@ CI 构建时出现错误：
 - `gradle.properties`: 将 `mod_version` 从 `0.1.10` 更新到 `0.1.11`
 
 ## 构建情况
-- 修改已提交到分支 `fix-mcef-dependency-resolution`，待 CI 环境验证
+- ✅ CI 构建成功通过
+- MCEF 依赖成功解析（使用 `3.1.2-1.21.4` 版本）
+- 所有编译错误已修复
+- CodeQL 上传出现权限警告（正常情况，不影响构建）
+- 修改已提交到分支 `fix-mcef-dependency-resolution`
 
 ## 恢复次数
-- 1（修复了导入错误和重复注解问题）
+- 1（修复了导入错误和重复注解问题后构建成功）
 
 ## 相关文件
 - `/home/engine/project/gradle.properties` - 依赖版本配置
