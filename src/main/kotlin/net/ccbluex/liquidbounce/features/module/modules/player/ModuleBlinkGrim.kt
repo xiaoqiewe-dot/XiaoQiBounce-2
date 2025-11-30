@@ -27,6 +27,7 @@ import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.Action
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager.positions
+import net.ccbluex.liquidbounce.utils.client.PacketSnapshot
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.event.tickHandler
 
@@ -43,7 +44,7 @@ object ModuleBlinkGrim : ClientModule("BlinkGrim", Category.PLAYER) {
 
     override fun disable() {
         // Flush queued outgoing packets when the module is disabled
-        val isOutgoing = { snapshot: PacketQueueManager.PacketSnapshot ->
+        val isOutgoing = { snapshot: PacketSnapshot ->
             snapshot.origin == TransferOrigin.OUTGOING
         }
         PacketQueueManager.flush(isOutgoing)
@@ -61,7 +62,7 @@ object ModuleBlinkGrim : ClientModule("BlinkGrim", Category.PLAYER) {
         if (autoRelease && positions.count() >= maxQueued) {
             val message = "Auto releasing queued packets"
             notification("BlinkGrim", message, NotificationEvent.Severity.INFO)
-            val isOutgoing = { snapshot: PacketQueueManager.PacketSnapshot ->
+            val isOutgoing = { snapshot: PacketSnapshot ->
                 snapshot.origin == TransferOrigin.OUTGOING
             }
             PacketQueueManager.flush(isOutgoing)
