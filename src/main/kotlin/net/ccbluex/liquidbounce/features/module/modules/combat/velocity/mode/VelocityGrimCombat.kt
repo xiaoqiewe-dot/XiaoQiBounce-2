@@ -226,7 +226,8 @@ internal object VelocityGrimCombat : VelocityMode("GrimCombat") {
             && canCancel
         ) {
             if (debug) {
-                player.sendMessage(net.minecraft.text.Text.literal("[GrimCombat] Velocity/Explosion packet intercepted."), false)
+                val message = "[GrimCombat] Velocity/Explosion packet intercepted."
+                player.sendMessage(net.minecraft.text.Text.literal(message), false)
             }
 
             val rotation = Rotation(player.yaw, 90f)
@@ -246,7 +247,8 @@ internal object VelocityGrimCombat : VelocityMode("GrimCombat") {
                 delayPackets = true
                 needClick = true
                 if (debug) {
-                    player.sendMessage(net.minecraft.text.Text.literal("[GrimCombat] Spoof initiated."), false)
+                    val spoofMessage = "[GrimCombat] Spoof initiated."
+                    player.sendMessage(net.minecraft.text.Text.literal(spoofMessage), false)
                 }
             }
             canCancel = false
@@ -279,7 +281,9 @@ internal object VelocityGrimCombat : VelocityMode("GrimCombat") {
             CombatManager.pauseCombatForAtLeast(attackDelay - damageTicks)
 
             if (debug) {
-                player.sendMessage(net.minecraft.text.Text.literal("[GrimCombat] Combat paused for ${attackDelay - damageTicks} ticks."), false)
+                val ticks = attackDelay - damageTicks
+                val pauseMessage = "[GrimCombat] Combat paused for $ticks ticks."
+                player.sendMessage(net.minecraft.text.Text.literal(pauseMessage), false)
             }
         }
 
@@ -292,7 +296,8 @@ internal object VelocityGrimCombat : VelocityMode("GrimCombat") {
                 // Note: Directly preventing jump input requires mixin or deeper integration.
                 // This is a partial solution.
                 if (debug) {
-                    player.sendMessage(net.minecraft.text.Text.literal("[GrimCombat] Jump restricted due to nearby enemy."), false)
+                    val jumpMessage = "[GrimCombat] Jump restricted due to nearby enemy."
+                    player.sendMessage(net.minecraft.text.Text.literal(jumpMessage), false)
                 }
             }
         }
@@ -324,7 +329,8 @@ internal object VelocityGrimCombat : VelocityMode("GrimCombat") {
                 waitForBlockUpdate = true
                 needClick = false
                 if (debug) {
-                    player.sendMessage(net.minecraft.text.Text.literal("[GrimCombat] Interaction spoofed."), false)
+                    val interactMessage = "[GrimCombat] Interaction spoofed."
+                    player.sendMessage(net.minecraft.text.Text.literal(interactMessage), false)
                 }
             } else {
                 // If interaction fails, flush packets to avoid getting stuck
@@ -333,7 +339,8 @@ internal object VelocityGrimCombat : VelocityMode("GrimCombat") {
                 flushDelayedPackets()
                 needClick = false
                 if (debug) {
-                    player.sendMessage(net.minecraft.text.Text.literal("[GrimCombat] Interaction failed, flushing packets."), false)
+                    val failMessage = "[GrimCombat] Interaction failed, flushing packets."
+                    player.sendMessage(net.minecraft.text.Text.literal(failMessage), false)
                 }
             }
         }
@@ -364,7 +371,8 @@ internal object VelocityGrimCombat : VelocityMode("GrimCombat") {
         delayPackets = false
         flushDelayedPackets()
         if (debug) {
-            player.sendMessage(net.minecraft.text.Text.literal("[GrimCombat] Interaction timed out, flushing packets."), false)
+            val timeoutMessage = "[GrimCombat] Interaction timed out, flushing packets."
+            player.sendMessage(net.minecraft.text.Text.literal(timeoutMessage), false)
         }
     }
 }

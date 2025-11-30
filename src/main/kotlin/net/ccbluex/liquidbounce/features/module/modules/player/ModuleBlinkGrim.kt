@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
+import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -42,12 +43,15 @@ object ModuleBlinkGrim : ClientModule("BlinkGrim", Category.PLAYER) {
 
     override fun disable() {
         // Flush queued outgoing packets when the module is disabled
-        PacketQueueManager.flush { snapshot -> snapshot.origin == net.ccbluex.liquidbounce.event.events.TransferOrigin.OUTGOING }
+        val isOutgoing = { snapshot: PacketQueueManager.PacketSnapshot ->
+            snapshot.origin == TransferOrigin.OUTGOING
+        }
+        PacketQueueManager.flush(isOutgoing)
     }
 
     @Suppress("unused")
     private val queueHandler = handler<QueuePacketEvent> { event ->
-        if (event.origin == net.ccbluex.liquidbounce.event.events.TransferOrigin.OUTGOING) {
+        if (event.origin == TransferOrigin.OUTGOING) {
             event.action = Action.QUEUE
         }
     }
@@ -55,8 +59,12 @@ object ModuleBlinkGrim : ClientModule("BlinkGrim", Category.PLAYER) {
     @Suppress("unused")
     private val tickHandler = tickHandler {
         if (autoRelease && positions.count() >= maxQueued) {
-            notification("BlinkGrim", "Auto releasing queued packets", NotificationEvent.Severity.INFO)
-            PacketQueueManager.flush { snapshot -> snapshot.origin == net.ccbluex.liquidbounce.event.events.TransferOrigin.OUTGOING }
+            val message = "Auto releasing queued packets"
+            notification("BlinkGrim", message, NotificationEvent.Severity.INFO)
+            val isOutgoing = { snapshot: PacketQueueManager.PacketSnapshot ->
+                snapshot.origin == TransferOrigin.OUTGOING
+            }
+            PacketQueueManager.flush(isOutgoing)
         }
     }
 }

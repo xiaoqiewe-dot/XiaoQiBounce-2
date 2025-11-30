@@ -88,7 +88,9 @@ internal object VelocityDelayedKnockback : VelocityMode("DelayedKnockback") {
                 player.velocity.z + accumulatedVelocity.z
             )
             // Optional: Add a small message or visual indicator
-            // player.sendMessage(net.minecraft.text.Text.literal("Released knockback: ${accumulatedVelocity.x}, ${accumulatedVelocity.y}, ${accumulatedVelocity.z}"), false)
+            // val message = "Released knockback: ${accumulatedVelocity.x}, " +
+            //     "${accumulatedVelocity.y}, ${accumulatedVelocity.z}"
+            // player.sendMessage(net.minecraft.text.Text.literal(message), false)
         }
         reset() // Reset state after release
     }

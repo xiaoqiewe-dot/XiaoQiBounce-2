@@ -57,7 +57,9 @@ internal object FlyHeypixelStyle : Choice("HeypixelStyle"), MinecraftShortcuts {
             // Apply an upward force to counteract gravity (which is ~0.08 blocks/tick²)
             // The `hoverStrength` determines how strongly we push up.
             // A value slightly less than gravity can create a slow sink/rise effect if desired.
-            player.setVelocity(player.velocity.x, (player.velocity.y + hoverStrength).coerceAtMost(0.5), player.velocity.z)
+            val horizontalVelocity = player.velocity
+            val yVelocity = (horizontalVelocity.y + hoverStrength).coerceAtMost(0.5)
+            player.setVelocity(horizontalVelocity.x, yVelocity, horizontalVelocity.z)
         } else {
             // If somehow on ground while enabled, prevent falling through blocks instantly
             // by not applying a large positive Y velocity. Let natural jump handle it if needed.

@@ -104,7 +104,10 @@ object ModuleSwordBlock : ClientModule("SwordBlock", Category.COMBAT, aliases = 
                     // Normal mode: send OFF_HAND packet for sword blocking
                     if (!isOlderThanOrEqual1_8) {
                         it.cancelEvent()
-                        network.sendPacket(PlayerInteractItemC2SPacket(Hand.OFF_HAND, packet.sequence, player.yaw, player.pitch))
+                        val interactPacket = PlayerInteractItemC2SPacket(
+                            Hand.OFF_HAND, packet.sequence, player.yaw, player.pitch
+                        )
+                        network.sendPacket(interactPacket)
                     }
                 }
             }
