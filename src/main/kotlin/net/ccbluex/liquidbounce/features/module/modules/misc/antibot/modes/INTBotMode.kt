@@ -82,7 +82,10 @@ object INTBotMode : Choice("INT"), ModuleAntiBot.IAntiBotMode {
             // However, for simplicity, we'll check if the entity is not glowing and has no visible equipment.
             // This is a heuristic and might not be 100% accurate.
             // A better way is to check for the Invisibility status effect.
-            val isInvisible = entity.isInvisible || entity.activeStatusEffects.any { it.value == net.minecraft.entity.effect.StatusEffects.INVISIBILITY }
+            val hasInvisibilityEffect = entity.activeStatusEffects.any {
+                it.value == net.minecraft.entity.effect.StatusEffects.INVISIBILITY
+            }
+            val isInvisible = entity.isInvisible || hasInvisibilityEffect
 
             if (!isInvisible) continue // Not invisible, skip
 

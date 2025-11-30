@@ -108,7 +108,12 @@ object ModuleItemImageReplace : ClientModule("ItemImageReplace", Category.RENDER
         fileIdCache[file]?.let { return it }
         return runCatching {
             val image = file.inputStream().use { NativeImage.read(it) }
-            val id = Identifier.of("liquidbounce", "custom-item-" + file.nameWithoutExtension.lowercase().replace("[^a-z0-9_-]".toRegex(), "_") + "-" + System.currentTimeMillis().toString(36))
+            val sanitizedName = file.nameWithoutExtension
+                .lowercase()
+                .replace("[^a-z0-9_-]".toRegex(), "_")
+            val uniqueSuffix = System.currentTimeMillis().toString(36)
+            val identifierPath = "custom-item-$sanitizedName-$uniqueSuffix"
+            val id = Identifier.of("liquidbounce", identifierPath)
             mc.textureManager.registerTexture(id, NativeImageBackedTexture(image))
             fileIdCache[file] = id
             id

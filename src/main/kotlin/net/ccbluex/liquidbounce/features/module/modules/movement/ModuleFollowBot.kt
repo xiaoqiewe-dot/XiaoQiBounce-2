@@ -104,7 +104,8 @@ object ModuleFollowBot : ClientModule("FollowBot", Category.MOVEMENT) {
                     if (!isPositionSafe(pos) || !hasSafeLinePath(playerPos, pos)) return@mapNotNull null
 
                     // Debug candidates
-                    ModuleDebug.debugGeometry(this, "FollowCandidate $yaw", ModuleDebug.DebuggedPoint(pos, Color4b.CYAN))
+                    val candidateName = "FollowCandidate $yaw"
+                    ModuleDebug.debugGeometry(this, candidateName, ModuleDebug.DebuggedPoint(pos, Color4b.CYAN))
                     pos
                 }
                 .minByOrNull { it.squaredDistanceTo(playerPos) }
@@ -184,21 +185,17 @@ object ModuleFollowBot : ClientModule("FollowBot", Category.MOVEMENT) {
         private fun attemptAutoBridgeTowards(goal: Vec3d) {
             if (!autoBridge) return
             val now = System.currentTimeMillis()
-            if (now - lastBridgeMs < bridgeDelayMs) return
-
-            // Only consider bridging if upcoming step is over void
-            if (!isOverVoid(goal)) return
+            val notReady = now - lastBridgeMs < bridgeDelayMs || !isOverVoid(goal)
+            if (notReady) return
 
             val dir = cardinalDirectionTowards(goal)
             val supportPos = player.blockPos.down()
             val placePos = supportPos.offset(dir)
 
-            // Already has ground there
-            if (canStandOn(placePos)) return
-
-            // Need a support block to click on
-            val supportState = world.getBlockState(supportPos)
-            if (supportState.isAir) return
+            // Check all conditions before attempting to place
+            val canPlace = canStandOn(placePos).not() &&
+                world.getBlockState(supportPos).isAir.not()
+            if (!canPlace) return
 
             // Find a block in hotbar
             val slot = (0..8).firstOrNull { player.inventory.getStack(it).item is BlockItem } ?: return

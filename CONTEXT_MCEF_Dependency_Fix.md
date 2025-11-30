@@ -67,15 +67,64 @@ CI 构建时出现错误：
 ### 版本号更新
 - `gradle.properties`: 将 `mod_version` 从 `0.1.10` 更新到 `0.1.11`
 
+## 后续 Detekt 静态分析问题修复
+
+### 问题概述
+第二次 CI 构建失败，detekt 检测到 18 个加权问题：
+- 17 个 `MaxLineLength` 错误 - 行长度超过限制
+- 1 个 `ReturnCount` 错误 - 函数返回语句过多
+
+### 修复详情
+
+#### 1. MaxLineLength 修复（17 处）
+**原则**：将超长行拆分为多行，提取中间变量
+
+受影响文件：
+- `FlyHeypixelStyle.kt:60` - 将长的 `setVelocity` 调用拆分为多行
+- `ModuleFollowBot.kt:107` - 提取调试名称为变量
+- `ModuleParticles.kt:66,74,85` - 拆分 lambda 和字符串拼接
+- `ModuleItemImageReplace.kt:111` - 分步构建 Identifier 路径
+- `ModuleBlinkGrim.kt:45,59` - 提取 lambda 为变量，添加 `TransferOrigin` 导入
+- `NoFallGrimSafe.kt:85` - 拆分速度计算为多行
+- `INTBotMode.kt:85` - 提取状态效果检查为变量
+- `ModuleNotebot.kt:62` - 提取 sound 为变量
+- `ModuleSwordBlock.kt:107` - 提取数据包构造为变量
+- `VelocityDelayedKnockback.kt:91` - 拆分注释为多行
+- `VelocityGrimCombat.kt:229,282,295,336,367` - 提取调试消息为变量
+
+#### 2. ReturnCount 修复（1 处）
+**文件**：`ModuleFollowBot.kt:184` - `attemptAutoBridgeTowards` 函数
+
+**问题**：函数有 5 个 return 语句（第 186, 188, 191, 198, 202 行），超过限制 4 个
+
+**修复**：合并条件检查减少 return 次数
+```kotlin
+// 合并延迟和空中检查
+val notReady = now - lastBridgeMs < bridgeDelayMs || !isOverVoid(goal)
+if (notReady) return
+
+// 合并地面和支撑块检查
+val canPlace = canStandOn(placePos).not() &&
+    world.getBlockState(supportPos).isAir.not()
+if (!canPlace) return
+```
+
+现在函数只有 4 个 return 语句：
+1. `if (!autoBridge) return`
+2. `if (notReady) return`
+3. `if (!canPlace) return`
+4. `val slot = ... ?: return`
+
+### 版本号更新
+- `gradle.properties`: 将 `mod_version` 从 `0.1.11` 更新到 `0.1.12`
+
 ## 构建情况
-- ✅ CI 构建成功通过
-- MCEF 依赖成功解析（使用 `3.1.2-1.21.4` 版本）
-- 所有编译错误已修复
-- CodeQL 上传出现权限警告（正常情况，不影响构建）
+- ✅ 第一次 CI 构建成功通过（MCEF 依赖和编译错误修复）
+- ⏳ 第二次修复 detekt 问题，待 CI 验证
 - 修改已提交到分支 `fix-mcef-dependency-resolution`
 
 ## 恢复次数
-- 1（修复了导入错误和重复注解问题后构建成功）
+- 2（第一次修复导入和注解问题，第二次修复 detekt 代码风格问题）
 
 ## 相关文件
 - `/home/engine/project/gradle.properties` - 依赖版本配置

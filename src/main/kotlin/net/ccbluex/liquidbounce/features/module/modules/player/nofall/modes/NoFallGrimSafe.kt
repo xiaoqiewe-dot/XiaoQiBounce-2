@@ -82,7 +82,10 @@ internal object NoFallGrimSafe : Choice("GrimSafe"), MinecraftShortcuts {
             val velocityX = packet.velocityX / 8000.0
             val velocityY = packet.velocityY / 8000.0
             val velocityZ = packet.velocityZ / 8000.0
-            val velocityMagnitude = kotlin.math.sqrt(velocityX * velocityX + velocityY * velocityY + velocityZ * velocityZ)
+            val vx2 = velocityX * velocityX
+            val vy2 = velocityY * velocityY
+            val vz2 = velocityZ * velocityZ
+            val velocityMagnitude = kotlin.math.sqrt(vx2 + vy2 + vz2)
 
             // If velocity magnitude is significant, assume player is falling
             if (velocityMagnitude > 0.5) {

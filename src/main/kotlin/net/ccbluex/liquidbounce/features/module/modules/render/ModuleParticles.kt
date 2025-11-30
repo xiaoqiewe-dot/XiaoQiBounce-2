@@ -63,7 +63,11 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
     // Allow loading custom particle images from a folder
     private val useCustomImages by boolean("UseCustomImages", false)
     private val customTextures = mutableListOf<Identifier>()
-    private val customParticlesDir by lazy { java.io.File(ConfigSystem.rootFolder, "particles").apply { if (!exists()) mkdirs() } }
+    private val customParticlesDir by lazy {
+        java.io.File(ConfigSystem.rootFolder, "particles").apply {
+            if (!exists()) mkdirs()
+        }
+    }
 
     init {
         refreshCustomTextures()
@@ -71,12 +75,15 @@ object ModuleParticles : ClientModule("Particles", category = Category.RENDER) {
 
     private fun refreshCustomTextures() {
         customTextures.clear()
-        val files = customParticlesDir.listFiles { f -> f.isFile && f.name.endsWith(".png", ignoreCase = true) } ?: return
+        val files = customParticlesDir.listFiles { file ->
+            file.isFile && file.name.endsWith(".png", ignoreCase = true)
+        } ?: return
         for (file in files) {
             runCatching {
                 file.inputStream().use { input ->
                     val image = NativeImage.read(input)
-                    val id = Identifier.of("liquidbounce", "custom-particle-" + file.nameWithoutExtension)
+                    val identifierPath = "custom-particle-${file.nameWithoutExtension}"
+                    val id = Identifier.of("liquidbounce", identifierPath)
                     mc.textureManager.registerTexture(id, NativeImageBackedTexture(image))
                     customTextures += id
                 }
