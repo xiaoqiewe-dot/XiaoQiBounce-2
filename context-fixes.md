@@ -87,3 +87,26 @@ e: file:///home/runner/work/XiaoQiBounce-2/XiaoQiBounce-2/src/main/kotlin/net/cc
 - 原始的4个编译错误已全部解决
 - 构建能够通过编译阶段，到达依赖下载阶段
 - 当前构建失败与我们的代码修复完全无关
+
+## 2025-01-03: 在缺少 Lithium/Sodium 时禁用可选 Mixins
+
+### 问题描述
+玩家在未安装 Lithium 的环境中启动客户端时，日志持续输出：
+```
+[main/WARN]: Error loading class: net/caffeinemc/mods/lithium/common/entity/movement/ChunkAwareBlockCollisionSweeper (java.lang.ClassNotFoundException: net/caffeinemc/mods/lithium/common/entity/movement/ChunkAwareBlockCollisionSweeper)
+```
+原因是 `liquidbounce.mixins.json` 无论是否安装 Lithium/Sodium 都会尝试注入对应的 mixin，Fabric Loader 在解析 target 类时直接报错，污染了日志并让用户误以为加载失败。
+
+### 修复方案
+1. 新增 `LiquidBounceMixinPlugin`，根据 Fabric Loader 提供的 `isModLoaded` 结果动态决定是否应用特定 mixin。
+2. 在插件中声明 Lithium 与 Sodium 的依赖映射，确保 `MixinChunkAwareBlockCollisionSweeper` 以及两个 Sodium 相关 mixin 只有在对应模组存在时才会注册。
+3. 在 `liquidbounce.mixins.json` 中配置 `plugin` 字段，使所有 mixin 加载逻辑都经过插件过滤。
+
+### 版本升级
+- `gradle.properties`: `mod_version` 从 `0.1.13` 升级到 `0.1.14`
+
+### 恢复次数
+- 0（修改一次即通过自检，等待 CI 验证）
+
+### 构建状态
+- 本地未执行（遵循平台要求，交由 finish 步骤统一构建）
