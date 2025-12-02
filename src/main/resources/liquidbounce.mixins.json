@@ -2,6 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "net.ccbluex.liquidbounce.injection.mixins",
+  "plugin": "net.ccbluex.liquidbounce.injection.mixins.LiquidBounceMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "priority": 1337,
   "mixinPriority": 1337,
